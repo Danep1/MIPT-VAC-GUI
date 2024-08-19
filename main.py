@@ -1,7 +1,11 @@
 import argparse
 from dataclasses import dataclass, asdict
+import pyqtgraph as pg
+from PyQt6 import QtWidgets
+
 
 from device import Device
+from measure import *
 
 INS_DEV_FILE = "usbtms0.a"
 
@@ -68,10 +72,28 @@ def args_check(args):
 		if arg not in ["sample", "Chan"] and (value < args_min.__dict__[arg] or value > args_max.__dict__[arg]):
 			raise ValueError(f"<{arg}> is out of range. See \"fet4p --help\"")
 
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.plot_graph = pg.PlotWidget()
+        self.setCentralWidget(self.plot_graph)
+
+    def plot(self, x, y):
+        self.plot_graph.plot(x, y)
+
 def main():
 	args = args_parsing()
 	args_check(args)
-	dev = Device(INS_DEV_FILE, args)
+	app = QtWidgets.QApplication([])
+	main = MainWindow()
+	with open("/dev/usbtmc0", "w+") as dev_file, Device(dev_file, args) as device:
+		with open("test.dat", "w+") as out_file, MeasureManager(device, out_file, args) as mm:
+			x, y = mm.single_channel_cycle("A", 0.0, 1e-2, 1e-3, 0.0)
+			main.plot(x, y)
+
+	main.show()
+	app.exec()
+
 
 if __name__ == '__main__':
 	main()
