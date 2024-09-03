@@ -3,7 +3,8 @@ from dataclasses import dataclass, asdict
 import numpy as np
 import traceback as tb
 
-from device import *
+from ui import MainWindow, QApplication
+from device import Ins2636B, InsDSO4254C
 
 @dataclass
 class VAC:
@@ -34,16 +35,25 @@ class Point:
 	def __str__(self):
 		return '\t'.join(map(str, vars(self).values())) + '\n'
 
-class MeasureManager:
-	def __init__(self, device: Device, output, args):
-		self.args = args
-		self.dev_obj = device
+class MeasurementManager:
+	def __init__(self, instr: Ins2636B, oscil: InsDSO4254C, window: MainWindow, output):
+		self.instr = instr
+		self.window = window
+		self.oscil = oscil
 		self.output_f = output
 
 
+		self.window.m_ui.light_on_off_button.toggled.connect(self.light_on_off_button_slot)
+
+		self.window.m_ui.manual_bias_1_spin.valueChanged.connect(self.manual_bias_1_spin_slot)
+		self.window.m_ui.manual_bias_2_spin.valueChanged.connect(self.manual_bias_2_spin_slot)
+
+		self.window.m_ui.manual_bias_reset_1_button.clicked.connect(self.manual_bias_reset_1_button_slot)
+		self.window.m_ui.manual_bias_reset_2_button.clicked.connect(self.manual_bias_reset_2_button_slot)
+
+
 	def __enter__(self):
-		self.dev_obj.prepare()
-		self.start_time = time.time()
+		self.window.show()
 		return self
 
 	def __exit__(self, type, value, traceback):
@@ -53,11 +63,34 @@ class MeasureManager:
 			exit()
 
 
+	def light_on_off_button_slot(self, checked: bool):
+		if checked:
+			self.window.m_ui.light_on_off_button.setText("СВЕТ: ВКЛ")
+			self.oscil.light_on()
+		else:
+			self.window.m_ui.light_on_off_button.setText("СВЕТ: ВЫКЛ")
+			self.oscil.light_off()
 
-	def single_channel_cycle(self, channel: str, start, stop, step, delay):
+
+	def manual_bias_1_spin_slot(self, value):
+		self.instr.set_A(value)
+
+	def manual_bias_2_spin_slot(self, value):
+		self.instr.set_B(value)
+
+	def manual_bias_reset_1_button_slot(self):
+		self.window.m_ui.manual_bias_1_spin.setValue(0.0)
+		self.instr.set_A(0.0)
+
+	def manual_bias_reset_2_button_slot(self):
+		self.window.m_ui.manual_bias_2_spin.setValue(0.0)
+		self.instr.set_B(0.0)
+
+
+	def single_channel_cycle(self, channel: int, start, stop, step, delay):
 		data_x = []
 		data_y = []
-		if channel.upper() == "A":
+		if channel == 1:
 			for idx, voltage in enumerate(np.arange(start, stop, step)):
 				self.dev_obj.set_A(float(voltage))
 				t = time.time() - self.start_time
@@ -66,5 +99,5 @@ class MeasureManager:
 				data_y.append(round(float(I), 4))
 				p = Point(idx, t, V, I, 0, 0)
 				self.output_f.write(str(p))
-
 		return data_x, data_y
+
