@@ -4,6 +4,10 @@ class Device:
 	def __init__(self, dev_obj):
 		self.dev_fd = dev_obj
 
+	def test(self):
+		self.write("*IDN?\n")
+		return self.dev_fd.readline()
+
 	def __enter__(self):
 		pass
 
@@ -88,4 +92,8 @@ class InsDSO4254C(Device):
 		self.write("dds:switch off\n")
 
 if __name__ == '__main__':
-	pass
+	df = "/dev/usbtmc1"
+	with open(df, "w+") as instr_file:
+		device = Device(instr_file)
+		print(df + ": " + device.test())
+
