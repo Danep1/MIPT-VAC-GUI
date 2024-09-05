@@ -3,6 +3,8 @@ import sys
 import os
 
 from PyQt6.QtWidgets import QApplication
+import PyQt6.QtAsyncio as QtAsyncio
+
 from device import Ins2636B, InsDSO4254C
 from measure import MeasurementManager
 from ui import MainWindow
@@ -27,7 +29,7 @@ if __name__ == '__main__':
 		app = QApplication(sys.argv)
 		window = MainWindow()
 		with MeasurementManager(instrument, oscilloscope, window, output_file) as manager:
-			EXIT = app.exec()
+			EXIT = QtAsyncio.run()
 		os.close(instr_fd)
 		os.close(oscil_fd)
 	sys.exit(EXIT)
