@@ -207,11 +207,11 @@ class PlotWidget(pg.PlotWidget):
 		self.setLabel("bottom", "Bias, V", **styles)
 		self.addLegend()
 		self.showGrid(x=True, y=True)
-		self.setXRange(1, 10)
-		self.setYRange(20, 40)
+		self.setXRange(0, 1)
+		self.setYRange(0, 1)
 
 	def plotting(self, x, y, label=" "):
-		self.plot(x, y, pen=self.pen, name=label)
+		return self.plot(x, y, pen=self.pen, name=label)
 
 
 class OutputWidget(QLabel):
@@ -271,8 +271,6 @@ class MainWindow(QMainWindow):
 			self.measure_type_button_list.append(measure_type_button)
 			self.m_ui.horizontalLayout_5.addWidget(measure_type_button)
 		
-		self.m_ui.start_button.clicked.connect(self.start_button_slot)
-		self.m_ui.stop_button.clicked.connect(self.stop_button_slot)
 
 	def substrate_combo_slot(self, index: int):
 		self.m_ui.segment_stacked.setCurrentIndex(index)
@@ -301,62 +299,4 @@ class MainWindow(QMainWindow):
 		else:
 			self.toggle_flag = False
 
-	def start_button_slot(self):
-		for widget in [	self.m_ui.sample_frame, 
-						self.m_ui.segment_stacked, 
-						self.m_ui.accurate_meas_check, 
-						self.m_ui.meas_setup_widget,
-						self.m_ui.meas_orber_box,
-						self.m_ui.manual_panel_box]:
-							widget.setEnabled(False)
-		self.TEST_single_channel_cycle(1, self.m_ui.limit_right_spin.value(), self.m_ui.limit_left_spin.value(), self.m_ui.step_spin.value(), 0.0)
-
-	def stop_button_slot(self):
-		for widget in [	self.m_ui.sample_frame, 
-						self.m_ui.segment_stacked, 
-						self.m_ui.accurate_meas_check, 
-						self.m_ui.meas_setup_widget,
-						self.m_ui.meas_orber_box,
-						self.m_ui.manual_panel_box]:
-							widget.setEnabled(True) 
-
-
-	def TEST_single_channel_cycle(self, channel: int, right_limit, left_limit, step, delay):
-		data_x = []
-		data_y = []
-		self.start_time = time.time()
-		if channel == 1:
-			for idx, voltage in enumerate(np.arange(0.0, right_limit, step)):
-				self.device.set_A(float(voltage))
-				t = time.time() - self.start_time
-				I, V = voltage * 0.01, voltage
-				time.sleep(0.5)
-				data_x.append(round(float(V), 4))
-				data_y.append(round(float(I), 4))
-				p = Point(idx, t, V, I, 0, 0)
-				#self.output_f.write(str(p))
-				self.plot_widget.plotting(data_x, data_y, "TEST")
-			idx_0 = idx
-			for idx, voltage in enumerate(np.arange(right_limit, left_limit, step)):
-				self.device.set_A(float(voltage))
-				t = time.time() - self.start_time
-				I, V = voltage * 0.01, voltage
-				time.sleep(0.5)
-				data_x.append(round(float(V), 4))
-				data_y.append(round(float(I), 4))
-				p = Point(idx0 + idx, t, V, I, 0, 0)
-				#self.output_f.write(str(p))
-				self.plot_widget.plotting(data_x, data_y, "TEST")
-			idx_0 += idx
-			for idx, voltage in enumerate(np.arange(left_limit, 0.0, step)):
-				self.device.set_A(float(voltage))
-				t = time.time() - self.start_time
-				I, V = voltage * 0.01, voltage
-				time.sleep(0.5)
-				data_x.append(round(float(V), 4))
-				data_y.append(round(float(I), 4))
-				p = Point(idx0 + idx, t, V, I, 0, 0)
-				#self.output_f.write(str(p))
-				self.plot_widget.plotting(data_x, data_y, "TEST")
-
-
+	

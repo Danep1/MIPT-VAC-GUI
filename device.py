@@ -1,24 +1,27 @@
 import traceback as tb
+import os
 
 class Device:
-	def __init__(self, dev_obj):
-		self.dev_fd = dev_obj
+	def __init__(self, device_fd):
+		self.device_fd = device_fd
+		self.idn = self.get_idn()
 
-	def test(self):
-		self.write("*IDN?\n")
-		return self.dev_fd.readline()
+	def get_idn(self):
+		self.write("*idn?\n")
+		return self.read()
 
-	def __enter__(self):
-		pass
-
-	def __exit__(self, type, value, traceback):
-		pass
+	def read(self, nbyte=1000):
+		s = os.read(self.device_fd, nbyte)
+		if len(s) == 0:
+			print("Couldn't read")
+		return s.decode()
 
 	def write(self, string: str):
 		if len(string) > 0:
-			self.dev_fd.write(string)
-			if self.dev_fd.flush() == 0:
-				raise SystemError("Couldn't write to instrument")
+			r = os.write(self.device_fd, string.encode())
+			#self.dev_fd.flush()
+			if r == 0:
+				raise SystemError("Couldn't write")
 		else:
 			raise ValueError("Cannot write an empty string")
 
@@ -93,7 +96,6 @@ class InsDSO4254C(Device):
 
 if __name__ == '__main__':
 	df = "/dev/usbtmc1"
-	with open(df, "w+") as instr_file:
-		device = Device(instr_file)
-		print(df + ": " + device.test())
-
+	instr_fd = os.open(df, os.O_RDWR)
+	device = Device(instr_fd)
+	device.test()
