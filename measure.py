@@ -2,7 +2,6 @@ import time
 from dataclasses import dataclass, asdict
 import numpy as np
 import traceback as tb
-import PyQt6.QtAsyncio as QtAsyncio
 
 from ui import MainWindow, QApplication
 from device import Ins2636B, InsDSO4254C

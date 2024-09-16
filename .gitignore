@@ -160,3 +160,4 @@ cython_debug/
 #.idea/
 dev/usbtmc0
 dev/usbtmc1
+/dev
