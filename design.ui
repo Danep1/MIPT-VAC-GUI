@@ -171,7 +171,7 @@
                  <double>20.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>1.000000000000000</double>
+                 <double>-1.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -277,7 +277,7 @@
                  <double>20.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>1.000000000000000</double>
+                 <double>-0.500000000000000</double>
                 </property>
                </widget>
               </item>
@@ -300,7 +300,7 @@
                  <double>20.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>1.000000000000000</double>
+                 <double>-0.500000000000000</double>
                 </property>
                </widget>
               </item>
@@ -319,7 +319,7 @@
                  <double>0.005000000000000</double>
                 </property>
                 <property name="value">
-                 <double>0.100000000000000</double>
+                 <double>0.050000000000000</double>
                 </property>
                </widget>
               </item>
@@ -568,6 +568,34 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>561</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Приборы</string>
+    </property>
+    <addaction name="action"/>
+    <addaction name="action_2"/>
+   </widget>
+   <addaction name="menu"/>
+  </widget>
+  <action name="action">
+   <property name="text">
+    <string>Источник измеритель</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Осциллограф</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

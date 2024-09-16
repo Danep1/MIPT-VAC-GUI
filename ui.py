@@ -1,7 +1,7 @@
-from PyQt6.QtCore import Qt, QCoreApplication
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import QPalette, QColor, QPixmap
-from PyQt6 import QtCore
+from PySide6.QtCore import Qt, QCoreApplication
+from PySide6.QtWidgets import *
+from PySide6.QtGui import QPalette, QColor, QPixmap
+from PySide6 import QtCore
 
 import numpy as np
 import pyqtgraph as pg
@@ -80,6 +80,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		super(DefaultDiodeSegmentWidget, self).__init__()
 		self.scheme_path = scheme_path
 		self.name = name
+		self.main_channel = 1
 
 		self.toggle_segment_flag = False
 		self.toggle_COM_flag = False
@@ -181,6 +182,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 	
 	def main_channel_1_button_slot(self, checked: bool):
 		if self.toggle_main_channel_flag is False:
+			self.main_channel = 1
 			self.toggle_main_channel_flag = True
 			self.main_channel_2_button.toggle()
 		else:
@@ -188,6 +190,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 
 	def main_channel_2_button_slot(self, checked: bool):
 		if self.toggle_main_channel_flag is False:
+			self.main_channel = 2
 			self.toggle_main_channel_flag = True
 			self.main_channel_1_button.toggle()
 		else:
@@ -199,7 +202,6 @@ class PlotWidget(pg.PlotWidget):
 		super(PlotWidget, self).__init__()
 
 		self.setBackground("w")
-		self.pen = pg.mkPen(color="r", width=5)
 		self.setMinimumSize(500, 500)
 		styles = {"color": "black", "font-size": "18px", "font": "Calibri"}
 		#self.setTitle("vac", color="b", size="20pt")
@@ -207,11 +209,14 @@ class PlotWidget(pg.PlotWidget):
 		self.setLabel("bottom", "Bias, V", **styles)
 		self.addLegend()
 		self.showGrid(x=True, y=True)
-		self.setXRange(0, 1)
+		self.setXRange(-1, 1)
 		self.setYRange(0, 1)
+		self.getPlotItem().enableAutoRange(axis=pg.ViewBox.YAxis)
 
-	def plotting(self, x, y, label=" "):
-		return self.plot(x, y, pen=self.pen, name=label)
+
+	def plotting(self, x, y, color, label=" "):
+		pen = pg.mkPen(color=color, width=5)
+		return self.plot(x, y, pen=pen, name=label)
 
 
 class OutputWidget(QLabel):
@@ -264,13 +269,23 @@ class MainWindow(QMainWindow):
 		self.m_ui.backward_dir_button.toggled.connect(self.backward_dir_button_slot)
 		self.m_ui.forward_dir_button.toggled.connect(self.forward_dir_button_slot)
 
+		self.m_ui.limit_left_spin.valueChanged.connect(self.limit_left_spin_slot)
+		self.m_ui.limit_right_spin.valueChanged.connect(self.limit_right_spin_slot)
+
 		self.measure_type_button_number = 8
 		self.measure_type_button_list = []
 		for i in range(self.measure_type_button_number):
 			measure_type_button = MeasureTypeButton()
 			self.measure_type_button_list.append(measure_type_button)
 			self.m_ui.horizontalLayout_5.addWidget(measure_type_button)
-		
+	
+	def limit_left_spin_slot(self, value):
+		old_xrange = self.plot_widget.getPlotItem().viewRange()[0]
+		self.plot_widget.setXRange(value, old_xrange[1])
+
+	def limit_right_spin_slot(self, value):
+		old_xrange = self.plot_widget.getPlotItem().viewRange()[0]
+		self.plot_widget.setXRange(old_xrange[0], value)
 
 	def substrate_combo_slot(self, index: int):
 		self.m_ui.segment_stacked.setCurrentIndex(index)

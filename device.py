@@ -1,5 +1,6 @@
 import traceback as tb
 import os
+import asyncio
 
 class Device:
 	def __init__(self, device_fd):
@@ -9,6 +10,10 @@ class Device:
 	def get_idn(self):
 		self.write("*idn?\n")
 		return self.read()
+
+	def test(self):
+		"""Call self.get_idn() and check device model"""
+		pass
 
 	def read(self, nbyte=1000):
 		s = os.read(self.device_fd, nbyte)
@@ -59,13 +64,13 @@ class Ins2636B(Device):
 	def set_current_limit_B(self, Imax):
 		self.write(f"smub.source.limiti = {Imax}\n")
 
-	def measure_A(self): # blocking function
+	async def measure_A(self): # blocking function
 		self.write("i, v = smua.measure.iv()\n");
 		self.write("print(i, v)\n");
 		dev_output = self.dev_fd.readline();
 		return dev_output.split()
 
-	def measure_B(self): # blocking function
+	async def measure_B(self): # blocking function
 		self.write("i, v = smub.measure.iv()\n");
 		self.write("print(i, v)\n");
 		dev_output = self.dev_fd.readline();

@@ -2,9 +2,10 @@ import time
 from dataclasses import dataclass, asdict
 import numpy as np
 import traceback as tb
-import PyQt6.QtAsyncio as QtAsyncio
+import PySide6.QtAsyncio as QtAsyncio
+import asyncio
 
-from ui import MainWindow, QApplication
+from ui import MainWindow, QApplication, MeasureType
 from device import Ins2636B, InsDSO4254C
 
 @dataclass
@@ -53,7 +54,7 @@ class MeasurementManager:
 		self.window.m_ui.manual_bias_reset_1_button.clicked.connect(self.manual_bias_reset_1_button_slot)
 		self.window.m_ui.manual_bias_reset_2_button.clicked.connect(self.manual_bias_reset_2_button_slot)
 
-		self.window.m_ui.start_button.clicked.connect(self.start_button_slot)
+		self.window.m_ui.start_button.clicked.connect(lambda: asyncio.ensure_future(self.start_button_slot()))
 		self.window.m_ui.stop_button.clicked.connect(self.stop_button_slot)
 
 	def __enter__(self):
@@ -90,7 +91,7 @@ class MeasurementManager:
 		self.window.m_ui.manual_bias_2_spin.setValue(0.0)
 		self.instr.set_B(0.0)
 
-	def start_button_slot(self):
+	async def start_button_slot(self):
 		self.stop_flag = False
 		for widget in [	self.window.m_ui.sample_frame, 
 						self.window.m_ui.segment_stacked, 
@@ -99,7 +100,24 @@ class MeasurementManager:
 						self.window.m_ui.meas_orber_box,
 						self.window.m_ui.manual_panel_box]:
 							widget.setEnabled(False)
-		self.single_channel_cycle(1, self.window.m_ui.limit_right_spin.value(), self.window.m_ui.limit_left_spin.value(), self.window.m_ui.step_spin.value(), self.window.m_ui.delay_spin.value())
+		for meas_button, color in zip(self.window.measure_type_button_list, ["r", "b", "g", "p", "o", "r", "r", "r"]):
+			if meas_button.state is MeasureType.none:
+				pass
+			if meas_button.state in (MeasureType.dark, MeasureType.light):
+				if meas_button.state is MeasureType.dark:
+					self.oscil.light_off()
+				else:
+					self.oscil.light_on()
+				await asyncio.sleep(2)
+				await self.single_channel_cycle(self.window.m_ui.segment_stacked.currentWidget().main_channel,
+											 	self.window.m_ui.limit_right_spin.value(), 
+												self.window.m_ui.limit_left_spin.value(), 
+												self.window.m_ui.step_spin.value(), 
+												self.window.m_ui.delay_spin.value(),
+												color)
+				meas_button.set_state(MeasureType.done)
+		self.stop_button_slot()
+
 
 	def stop_button_slot(self):
 		self.stop_flag = True
@@ -111,28 +129,31 @@ class MeasurementManager:
 						self.window.m_ui.manual_panel_box]:
 							widget.setEnabled(True) 
 
-	def single_channel_cycle(self, channel: int, right_limit, left_limit, step, delay):
+	async def single_channel_cycle(self, channel: int, right_limit, left_limit, step, delay, color):
 		data_x = []
 		data_y = []
 		self.start_time = time.time()
-		self.line = self.window.plot_widget.plotting(data_x, data_y, "TEST")
-		if channel == 1:
-			print(np.concatenate((np.arange(0.0, right_limit + step, step), np.arange(right_limit + step, left_limit - step, step), np.arange(left_limit - step, 0.0, step))))
-			for idx, voltage in enumerate(np.concatenate((np.arange(0.0, right_limit, step), np.arange(right_limit, left_limit, step), np.arange(left_limit, 0.0, step)), axis=0)):
-				#self.instr.set_A(float(voltage))
-				t = time.time() - self.start_time
+		self.line = self.window.plot_widget.plotting(data_x, data_y, color, "TEST")
+		for idx, voltage in enumerate(np.concatenate((	np.arange(0.0, right_limit, step), 
+														np.arange(right_limit, left_limit, -step), 
+														np.arange(left_limit, 0.0, step)), axis=0)):
+			#self.instr.set_A(float(voltage))
+			t = time.time() - self.start_time
+			if channel == 1:
 				I, V = voltage * 0.01, voltage
-				time.sleep(0.5)
-				data_x.append(round(float(V), 4))
-				data_y.append(round(float(I), 4))
-				p = Point(idx, t, V, I, 0, 0)
-				#self.output_f.write(str(p))
-				self.line.setData(data_x, data_y)
-				print(f"{voltage} V;")
-				if self.stop_flag is True:
-					print("Stopped")
-					self.stop_flag = False
-					break
-		elif channel == 2:
-			pass
+			elif channel == 2:
+				I, V = voltage * 0.01, voltage
+			else:
+				raise ValueError("channel must equal 1 or 2")
+			await asyncio.sleep(0.5)
 
+			data_x.append(round(float(V), 5))
+			data_y.append(round(float(I), 5))
+			p = Point(idx, t, V, I, 0, 0)
+			#self.output_f.write(str(p))
+			self.line.setData(data_x, data_y)
+			print(f"{voltage} V;") # change status bar
+			if self.stop_flag is True:
+				print("Stopped")
+				self.stop_flag = False
+				break

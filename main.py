@@ -2,15 +2,15 @@ import argparse
 import sys
 import os
 
-from PyQt6.QtWidgets import QApplication
-import PyQt6.QtAsyncio as QtAsyncio
+from PySide6.QtWidgets import QApplication
+import PySide6.QtAsyncio as QtAsyncio
 
 from device import Ins2636B, InsDSO4254C
 from measure import MeasurementManager
 from ui import MainWindow
 
-INS_DEV_FILE = "/dev/usbtmc2"
-OSC_DEV_FILE = "/dev/usbtmc1"
+INS_DEV_FILE = "./dev/usbtmc2"
+OSC_DEV_FILE = "./dev/usbtmc1"
 
 def args_parsing():
 	parser = argparse.ArgumentParser(description="FET4P -- a program for measuring of charge carrier mobility of "
