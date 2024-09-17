@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>561</width>
+    <width>533</width>
     <height>708</height>
    </rect>
   </property>
@@ -87,19 +87,22 @@
         <item>
          <widget class="QWidget" name="meas_setup_widget" native="true">
           <layout class="QGridLayout" name="gridLayout_5">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
            <property name="topMargin">
             <number>2</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
            </property>
            <property name="bottomMargin">
             <number>2</number>
            </property>
-           <property name="horizontalSpacing">
-            <number>7</number>
-           </property>
-           <property name="verticalSpacing">
+           <property name="spacing">
             <number>2</number>
            </property>
-           <item row="2" column="1">
+           <item row="3" column="1">
             <widget class="QGroupBox" name="direction_box">
              <property name="title">
               <string/>
@@ -152,6 +155,24 @@
               <string>Общий диапазон</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_6">
+              <property name="leftMargin">
+               <number>5</number>
+              </property>
+              <property name="topMargin">
+               <number>5</number>
+              </property>
+              <property name="rightMargin">
+               <number>5</number>
+              </property>
+              <property name="bottomMargin">
+               <number>5</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>2</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>5</number>
+              </property>
               <item row="0" column="0">
                <widget class="QLabel" name="limit_left_label">
                 <property name="layoutDirection">
@@ -164,6 +185,9 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="limit_left_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -184,6 +208,9 @@
               </item>
               <item row="1" column="1">
                <widget class="QDoubleSpinBox" name="limit_right_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -204,6 +231,9 @@
               </item>
               <item row="2" column="1">
                <widget class="QDoubleSpinBox" name="step_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="decimals">
                  <number>3</number>
                 </property>
@@ -230,6 +260,9 @@
               </item>
               <item row="3" column="1">
                <widget class="QDoubleSpinBox" name="delay_spin">
+                <property name="suffix">
+                 <string> с</string>
+                </property>
                 <property name="maximum">
                  <double>30.000000000000000</double>
                 </property>
@@ -247,6 +280,24 @@
               <string>Диапазон с меньшим шагом</string>
              </property>
              <layout class="QGridLayout" name="gridLayout">
+              <property name="leftMargin">
+               <number>5</number>
+              </property>
+              <property name="topMargin">
+               <number>5</number>
+              </property>
+              <property name="rightMargin">
+               <number>5</number>
+              </property>
+              <property name="bottomMargin">
+               <number>5</number>
+              </property>
+              <property name="horizontalSpacing">
+               <number>2</number>
+              </property>
+              <property name="verticalSpacing">
+               <number>5</number>
+              </property>
               <item row="0" column="1">
                <widget class="QLabel" name="limit_left_accurate_label">
                 <property name="text">
@@ -270,6 +321,9 @@
               </item>
               <item row="0" column="3">
                <widget class="QDoubleSpinBox" name="limit_left_accurate_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -283,6 +337,9 @@
               </item>
               <item row="4" column="3">
                <widget class="QDoubleSpinBox" name="delay_accurate_spin">
+                <property name="suffix">
+                 <string> с</string>
+                </property>
                 <property name="maximum">
                  <double>30.000000000000000</double>
                 </property>
@@ -293,6 +350,9 @@
               </item>
               <item row="1" column="3">
                <widget class="QDoubleSpinBox" name="limit_right_accurate_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -306,6 +366,9 @@
               </item>
               <item row="2" column="3">
                <widget class="QDoubleSpinBox" name="step_accurate_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="decimals">
                  <number>3</number>
                 </property>
@@ -331,13 +394,6 @@
                </widget>
               </item>
              </layout>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="direction_label">
-             <property name="text">
-              <string>Направление:</string>
-             </property>
             </widget>
            </item>
            <item row="1" column="0" colspan="2">
@@ -370,6 +426,9 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="max_current_1_spin">
+                <property name="suffix">
+                 <string> А</string>
+                </property>
                 <property name="maximum">
                  <double>5.000000000000000</double>
                 </property>
@@ -378,15 +437,18 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
+              <item row="0" column="2">
                <widget class="QLabel" name="max_current_2_label">
                 <property name="text">
                  <string>Канал 2:</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1">
+              <item row="0" column="4">
                <widget class="QDoubleSpinBox" name="max_current_2_spin">
+                <property name="suffix">
+                 <string> А</string>
+                </property>
                 <property name="maximum">
                  <double>5.000000000000000</double>
                 </property>
@@ -396,6 +458,13 @@
                </widget>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="direction_label">
+             <property name="text">
+              <string>Направление:</string>
+             </property>
             </widget>
            </item>
           </layout>
@@ -462,7 +531,14 @@
            <item>
             <widget class="QPushButton" name="next_button">
              <property name="text">
-              <string>Следующее</string>
+              <string>Далее</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="text">
+              <string>Сброс</string>
              </property>
             </widget>
            </item>
@@ -573,7 +649,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>561</width>
+     <width>533</width>
      <height>26</height>
     </rect>
    </property>

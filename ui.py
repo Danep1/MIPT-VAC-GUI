@@ -1,7 +1,7 @@
 from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtWidgets import *
 from PySide6.QtGui import QPalette, QColor, QPixmap
-from PySide6 import QtCore
+from PySide6 import QtCore, QtGui
 
 import numpy as np
 import pyqtgraph as pg
@@ -12,6 +12,19 @@ from dataclasses import dataclass, asdict
 from design import Ui_MainWindow
 
 _translate = QCoreApplication.translate
+
+color_list = (	QColor("red"),
+				QColor("green"),
+				QColor("blue"),
+				QColor(0, 204, 204),
+				QColor(255, 0, 127),
+				QColor(204, 204, 0),
+				QColor(128, 128, 128),
+				QColor(255, 128, 0)
+				)
+
+def QColor_to_str(color: QColor):
+	return f"rgb({color.red()}, {color.green()}, {color.blue()})"
 
 @dataclass
 class Point:
@@ -35,9 +48,11 @@ class MeasureType(Enum):
 class MeasureTypeButton(QPushButton):
 	def __init__(self):
 		super(MeasureTypeButton, self).__init__()
-		self.state = MeasureType.none
-		self.setMinimumSize(37, 24)
-		self.setText(" ")
+		self.border_radius = 5
+		self.min_width = 15
+		self.padding = 2
+
+		self.set_state(MeasureType.none)
 		self.clicked.connect(self.slot)
 
 	def slot(self):
@@ -51,28 +66,46 @@ class MeasureTypeButton(QPushButton):
 			case MeasureType.light:
 				self.set_state(MeasureType.none)
 
-	def set_state(self, new_state: MeasureType):
+	def set_state(self, new_state: MeasureType, borber_color=None):
 		self.state = new_state
 		match new_state:
 			case MeasureType.none:
-				self.setDown(False)
-				self.setStyleSheet('QPushButton')
+				self.setStyleSheet(f"""	border: 1px outset grey;
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										padding: {self.padding}px
+										""")
 				self.setText(" ")
 
 			case MeasureType.dark:
-				self.setDown(True)
-				self.setStyleSheet('QPushButton {background-color: blue}')
+				self.setStyleSheet(f"""	background-color: blue;
+										border: 1px outset blue;
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										padding: {self.padding}px
+										""")
 				self.setText("D")
 
 			case MeasureType.light:
-				self.setDown(True)
-				self.setStyleSheet('QPushButton {background-color: red}')
 				self.setText("L")
+				self.setStyleSheet(f"""	background-color: red;
+										border: 1px outset red;
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										padding: {self.padding}px
+										""")
 
 			case MeasureType.done:
-				self.setDown(True)
-				self.setStyleSheet('QPushButton {background-color: green}')
 				self.setText("Done")
+				if borber_color:
+					self.setStyleSheet(f"""	background-color: green;
+											border: {self.padding + 1}px outset {QColor_to_str(borber_color)};
+											border-radius: {self.border_radius}px;
+											min-width: {self.min_width}px;
+											""")
+				else:
+					print("borber_color is None")
+
 
 
 class DefaultDiodeSegmentWidget(QWidget):
@@ -215,7 +248,7 @@ class PlotWidget(pg.PlotWidget):
 
 
 	def plotting(self, x, y, color, label=" "):
-		pen = pg.mkPen(color=color, width=5)
+		pen = pg.mkPen(color=color, width=3)
 		return self.plot(x, y, pen=pen, name=label)
 
 
@@ -232,6 +265,8 @@ class MainWindow(QMainWindow):
 
 		self.m_ui = Ui_MainWindow()
 		self.m_ui.setupUi(self)
+
+		self.setWindowTitle("MIPT VAC GUI")
 		
 		palette = QtGui.QGuiApplication.palette()
 		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(120, 120, 120))
@@ -277,10 +312,16 @@ class MainWindow(QMainWindow):
 		self.m_ui.backward_dir_button.toggled.connect(self.backward_dir_button_slot)
 		self.m_ui.forward_dir_button.toggled.connect(self.forward_dir_button_slot)
 
+		self.m_ui.limit_left_spin.setMinimumWidth(110)
+		self.m_ui.limit_left_accurate_spin.setMinimumWidth(110)
+
+		self.m_ui.max_current_1_label.setMaximumWidth(60)
+		self.m_ui.max_current_2_label.setMaximumWidth(60)
+
 		self.m_ui.limit_left_spin.valueChanged.connect(self.limit_left_spin_slot)
 		self.m_ui.limit_right_spin.valueChanged.connect(self.limit_right_spin_slot)
 
-		self.measure_type_button_number = 8
+		self.measure_type_button_number = len(color_list)
 		self.measure_type_button_list = []
 		for i in range(self.measure_type_button_number):
 			measure_type_button = MeasureTypeButton()

@@ -5,37 +5,9 @@ import traceback as tb
 import PySide6.QtAsyncio as QtAsyncio
 import asyncio
 
-from ui import MainWindow, QApplication, MeasureType
+from ui import MainWindow, QApplication, MeasureType, Point, color_list, QColor, QColor_to_str
 from device import Ins2636B, InsDSO4254C
 
-@dataclass
-class VAC:
-	data: list
-
-@dataclass
-class MeasurementParameters:
-	regime:	str
-	V1_start:	float
-	V1_stop:	float
-	V1_step:	float
-	I1_max:	float
-	V2_start:	float
-	V2_stop:	float
-	V2_step:	float
-	I2_max:	float
-	delay:	float
-
-@dataclass
-class Point:
-	idx:	int
-	t: 	float
-	V1: 	float
-	I1: 	float
-	V2: 	float
-	I2: 	float
-
-	def __str__(self):
-		return '\t'.join(map(str, vars(self).values())) + '\n'
 
 class MeasurementManager:
 	def __init__(self, instr: Ins2636B, oscil: InsDSO4254C, window: MainWindow, output):
@@ -100,23 +72,25 @@ class MeasurementManager:
 						self.window.m_ui.meas_orber_box,
 						self.window.m_ui.manual_panel_box]:
 							widget.setEnabled(False)
-		for meas_button, color in zip(self.window.measure_type_button_list, ["r", "b", "g", "p", "o", "r", "r", "r"]):
+		for meas_button, color in zip(self.window.measure_type_button_list, color_list):
 			if meas_button.state is MeasureType.none:
 				pass
+			if self.stop_flag:
+				break
 			if meas_button.state in (MeasureType.dark, MeasureType.light):
 				if meas_button.state is MeasureType.dark:
 					self.oscil.light_off()
 				else:
 					self.oscil.light_on()
 				await asyncio.sleep(2)
-				await self.single_channel_cycle(self.window.m_ui.segment_stacked.currentWidget().main_channel,
+				await self.diode_cycle(self.window.m_ui.segment_stacked.currentWidget().main_channel,
 											 	self.window.m_ui.limit_right_spin.value(), 
 												self.window.m_ui.limit_left_spin.value(), 
 												self.window.m_ui.step_spin.value(), 
 												self.window.m_ui.delay_spin.value(),
 												color)
-				meas_button.set_state(MeasureType.done)
-		self.stop_button_slot()
+				meas_button.set_state(MeasureType.done, color)
+
 
 
 	def stop_button_slot(self):
@@ -127,9 +101,9 @@ class MeasurementManager:
 						self.window.m_ui.meas_setup_widget,
 						self.window.m_ui.meas_orber_box,
 						self.window.m_ui.manual_panel_box]:
-							widget.setEnabled(True) 
+							widget.setEnabled(True)
 
-	async def single_channel_cycle(self, channel: int, right_limit, left_limit, step, delay, color):
+	async def diode_cycle(self, channel: int, right_limit, left_limit, step, delay, color):
 		data_x = []
 		data_y = []
 		self.start_time = time.time()
@@ -154,6 +128,5 @@ class MeasurementManager:
 			self.line.setData(data_x, data_y)
 			print(f"{voltage} V;") # change status bar
 			if self.stop_flag is True:
-				print("Stopped")
 				self.stop_flag = False
 				break
