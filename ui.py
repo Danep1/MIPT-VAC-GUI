@@ -232,6 +232,14 @@ class MainWindow(QMainWindow):
 
 		self.m_ui = Ui_MainWindow()
 		self.m_ui.setupUi(self)
+		
+		palette = QtGui.QGuiApplication.palette()
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(120, 120, 120))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Button, QtGui.QColor(240, 240, 240))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Text, QtGui.QColor(120, 120, 120))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor(120, 120, 120))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Base, QtGui.QColor(240, 240, 240))
+		self.setPalette(palette)
 
 		self.plot_widget = PlotWidget()
 		self.output_widget = OutputWidget()
