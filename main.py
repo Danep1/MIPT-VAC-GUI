@@ -21,15 +21,14 @@ def args_parsing():
 
 if __name__ == '__main__':
 	args = args_parsing()
-	with open("test.dat", "w+") as output_file:
-		instr_fd = os.open(INS_DEV_FILE, os.O_RDWR)
-		oscil_fd = os.open(OSC_DEV_FILE, os.O_RDWR)
-		instrument = Ins2636B(instr_fd)
-		oscilloscope = InsDSO4254C(oscil_fd)
-		app = QApplication(sys.argv)
-		window = MainWindow()
-		with MeasurementManager(instrument, oscilloscope, window, output_file) as manager:
-			EXIT = QtAsyncio.run()
-		os.close(instr_fd)
-		os.close(oscil_fd)
+	instr_fd = os.open(INS_DEV_FILE, os.O_RDWR)
+	oscil_fd = os.open(OSC_DEV_FILE, os.O_RDWR)
+	instrument = Ins2636B(instr_fd)
+	oscilloscope = InsDSO4254C(oscil_fd)
+	app = QApplication(sys.argv)
+	window = MainWindow()
+	with MeasurementManager(instrument, oscilloscope, window) as manager:
+		EXIT = QtAsyncio.run()
+	os.close(instr_fd)
+	os.close(oscil_fd)
 	sys.exit(EXIT)

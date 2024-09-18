@@ -244,30 +244,30 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addWidget(self.accurate_meas_box, 0, 1, 1, 1)
 
-        self.groupBox = QGroupBox(self.meas_setup_widget)
-        self.groupBox.setObjectName(u"groupBox")
-        self.gridLayout_4 = QGridLayout(self.groupBox)
+        self.max_current_box = QGroupBox(self.meas_setup_widget)
+        self.max_current_box.setObjectName(u"max_current_box")
+        self.gridLayout_4 = QGridLayout(self.max_current_box)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setVerticalSpacing(2)
         self.gridLayout_4.setContentsMargins(11, 2, 11, 2)
-        self.max_current_1_label = QLabel(self.groupBox)
+        self.max_current_1_label = QLabel(self.max_current_box)
         self.max_current_1_label.setObjectName(u"max_current_1_label")
 
         self.gridLayout_4.addWidget(self.max_current_1_label, 0, 0, 1, 1)
 
-        self.max_current_1_spin = QDoubleSpinBox(self.groupBox)
+        self.max_current_1_spin = QDoubleSpinBox(self.max_current_box)
         self.max_current_1_spin.setObjectName(u"max_current_1_spin")
         self.max_current_1_spin.setMaximum(5.000000000000000)
         self.max_current_1_spin.setValue(0.010000000000000)
 
         self.gridLayout_4.addWidget(self.max_current_1_spin, 0, 1, 1, 1)
 
-        self.max_current_2_label = QLabel(self.groupBox)
+        self.max_current_2_label = QLabel(self.max_current_box)
         self.max_current_2_label.setObjectName(u"max_current_2_label")
 
         self.gridLayout_4.addWidget(self.max_current_2_label, 0, 2, 1, 1)
 
-        self.max_current_2_spin = QDoubleSpinBox(self.groupBox)
+        self.max_current_2_spin = QDoubleSpinBox(self.max_current_box)
         self.max_current_2_spin.setObjectName(u"max_current_2_spin")
         self.max_current_2_spin.setMaximum(5.000000000000000)
         self.max_current_2_spin.setValue(0.010000000000000)
@@ -275,7 +275,7 @@ class Ui_MainWindow(object):
         self.gridLayout_4.addWidget(self.max_current_2_spin, 0, 4, 1, 1)
 
 
-        self.gridLayout_5.addWidget(self.groupBox, 1, 0, 1, 2)
+        self.gridLayout_5.addWidget(self.max_current_box, 1, 0, 1, 2)
 
         self.direction_label = QLabel(self.meas_setup_widget)
         self.direction_label.setObjectName(u"direction_label")
@@ -312,23 +312,26 @@ class Ui_MainWindow(object):
 
         self.pause_button = QPushButton(self.meas_control_box)
         self.pause_button.setObjectName(u"pause_button")
+        self.pause_button.setEnabled(False)
 
         self.horizontalLayout_4.addWidget(self.pause_button)
 
         self.U__button = QPushButton(self.meas_control_box)
         self.U__button.setObjectName(u"U__button")
+        self.U__button.setEnabled(False)
 
         self.horizontalLayout_4.addWidget(self.U__button)
 
         self.next_button = QPushButton(self.meas_control_box)
         self.next_button.setObjectName(u"next_button")
+        self.next_button.setEnabled(False)
 
         self.horizontalLayout_4.addWidget(self.next_button)
 
-        self.pushButton = QPushButton(self.meas_control_box)
-        self.pushButton.setObjectName(u"pushButton")
+        self.reset_button = QPushButton(self.meas_control_box)
+        self.reset_button.setObjectName(u"reset_button")
 
-        self.horizontalLayout_4.addWidget(self.pushButton)
+        self.horizontalLayout_4.addWidget(self.reset_button)
 
 
         self.verticalLayout.addWidget(self.meas_control_box)
@@ -440,7 +443,7 @@ class Ui_MainWindow(object):
         self.limit_right_accurate_spin.setSuffix(QCoreApplication.translate("MainWindow", u" \u0412", None))
         self.step_accurate_spin.setSuffix(QCoreApplication.translate("MainWindow", u" \u0412", None))
         self.step_accurate_label.setText(QCoreApplication.translate("MainWindow", u"\u0428\u0430\u0433:", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u043e \u0434\u043e\u043f\u0443\u0441\u0442\u0438\u043c\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0441\u0438\u043b\u044b \u0442\u043e\u043a\u0430:", None))
+        self.max_current_box.setTitle(QCoreApplication.translate("MainWindow", u"\u041c\u0430\u043a\u0441\u0438\u043c\u0430\u043b\u044c\u043d\u043e \u0434\u043e\u043f\u0443\u0441\u0442\u0438\u043c\u043e\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u0438\u0435 \u0441\u0438\u043b\u044b \u0442\u043e\u043a\u0430:", None))
         self.max_current_1_label.setText(QCoreApplication.translate("MainWindow", u"\u041a\u0430\u043d\u0430\u043b 1:", None))
         self.max_current_1_spin.setSuffix(QCoreApplication.translate("MainWindow", u" \u0410", None))
         self.max_current_2_label.setText(QCoreApplication.translate("MainWindow", u"\u041a\u0430\u043d\u0430\u043b 2:", None))
@@ -453,7 +456,7 @@ class Ui_MainWindow(object):
         self.pause_button.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0430\u0443\u0437\u0430", None))
         self.U__button.setText(QCoreApplication.translate("MainWindow", u"\u0420\u0430\u0437\u0432\u043e\u0440\u043e\u0442", None))
         self.next_button.setText(QCoreApplication.translate("MainWindow", u"\u0414\u0430\u043b\u0435\u0435", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\u0421\u0431\u0440\u043e\u0441", None))
+        self.reset_button.setText(QCoreApplication.translate("MainWindow", u"\u0421\u0431\u0440\u043e\u0441", None))
         self.manual_panel_box.setTitle(QCoreApplication.translate("MainWindow", u"\u0420\u0443\u0447\u043d\u043e\u0435 \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u0435:", None))
         self.light_on_off_button.setText(QCoreApplication.translate("MainWindow", u"\u0421\u0432\u0435\u0442: \u0412\u042b\u041a\u041b", None))
         self.manual_1_box.setTitle(QCoreApplication.translate("MainWindow", u"\u041a\u0430\u043d\u0430\u043b 1", None))

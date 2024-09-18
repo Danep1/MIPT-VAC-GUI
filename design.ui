@@ -397,7 +397,7 @@
             </widget>
            </item>
            <item row="1" column="0" colspan="2">
-            <widget class="QGroupBox" name="groupBox">
+            <widget class="QGroupBox" name="max_current_box">
              <property name="title">
               <string>Максимально допустимое значение силы тока:</string>
              </property>
@@ -516,6 +516,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="pause_button">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Пауза</string>
              </property>
@@ -523,6 +526,9 @@
            </item>
            <item>
             <widget class="QPushButton" name="U__button">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Разворот</string>
              </property>
@@ -530,13 +536,16 @@
            </item>
            <item>
             <widget class="QPushButton" name="next_button">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="text">
               <string>Далее</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="pushButton">
+            <widget class="QPushButton" name="reset_button">
              <property name="text">
               <string>Сброс</string>
              </property>
