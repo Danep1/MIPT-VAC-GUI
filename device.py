@@ -5,14 +5,17 @@ import asyncio
 class Device:
 	def __init__(self, device_fd):
 		self.device_fd = device_fd
-		self.idn = self.get_idn()
+		self.manufacture, self.product_number, self.serial_number, self.firmware_version = self.get_idn().rstrip().split(", ")
+		if sum(map(len, [self.manufacture, self.product_number, self.serial_number, self.firmware_version])) == 0:
+			raise SystemError("Got empty answer")
+		self.check_idn()
 
 	def get_idn(self):
 		self.write("*idn?\n")
 		return self.read()
 
-	def test(self):
-		"""Call self.get_idn() and check device model"""
+	def check_idn(self):
+		"""Call self.get_idn() and check device model: raise SystemError if something wrong"""
 		pass
 
 	def read(self, nbyte=1000):
@@ -32,6 +35,10 @@ class Device:
 
 
 class Ins2636B(Device):
+	def check_idn(self):
+		if self.manufacture != "Keithley Instruments Inc." or self.product_number != "Model 2636B":
+			raise SystemError("Wrong /usbtmc fd connected")
+
 	def __enter__(self):
 			# channel A - V1
 		self.write("smua.source.output = smua.OUTPUT_OFF\n")
@@ -93,6 +100,11 @@ class Ins2636B(Device):
 
 
 class InsDSO4254C(Device):
+	def check_idn(self):
+		if self.manufacture != "Hantek" or self.product_number != "DSO4254C":
+			raise SystemError("Wrong /usbtmc fd connected")
+
+
 	def light_on(self):
 		self.write("dds:switch on\n")
 
@@ -100,7 +112,8 @@ class InsDSO4254C(Device):
 		self.write("dds:switch off\n")
 
 if __name__ == '__main__':
-	df = "/dev/usbtmc1"
-	instr_fd = os.open(df, os.O_RDWR)
-	device = Device(instr_fd)
-	device.test()
+	instr_fd = os.open("/dev/usbtmc2", os.O_RDWR)
+	oscil_fd = os.open("/dev/usbtmc1", os.O_RDWR)
+	instr = Ins2636B(instr_fd)
+	oscil = InsDSO4254C(oscil_fd)
+

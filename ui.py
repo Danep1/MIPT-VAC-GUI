@@ -233,7 +233,6 @@ class DefaultDiodeSegmentWidget(QWidget):
 class PlotWidget(pg.PlotWidget):
 	def __init__(self):
 		super(PlotWidget, self).__init__()
-
 		self.setBackground("w")
 		self.setMinimumSize(500, 500)
 		styles = {"color": "black", "font-size": "18px", "font": "Calibri"}
@@ -245,7 +244,11 @@ class PlotWidget(pg.PlotWidget):
 		self.setXRange(-1, 1)
 		self.setYRange(0, 1)
 		self.getPlotItem().enableAutoRange(axis=pg.ViewBox.YAxis)
-
+		self.zero_axis_pen = pg.mkPen(color="black", width=1)
+		self.v_line = pg.InfiniteLine(pos=0, angle=0, pen=self.zero_axis_pen)
+		self.h_line = pg.InfiniteLine(pos=0, angle=90, pen=self.zero_axis_pen)
+		self.addItem(self.v_line)
+		self.addItem(self.h_line)
 
 	def plotting(self, x, y, color, label=" "):
 		pen = pg.mkPen(color=color, width=3)
@@ -280,7 +283,7 @@ class MainWindow(QMainWindow):
 		self.output_widget = OutputWidget()
 		self.vsplitter = QSplitter(Qt.Orientation.Vertical)
 
-		self.move(20, 20)
+		self.move(600, 20)
 
 		self.vsplitter.addWidget(self.plot_widget)
 		self.vsplitter.addWidget(self.output_widget)
@@ -345,7 +348,12 @@ class MainWindow(QMainWindow):
 		self.sample_name = self.m_ui.sample_edit.text()
 
 	def accurate_meas_check_slot(self):
-		self.m_ui.accurate_meas_box.setEnabled(self.m_ui.accurate_meas_check.checkState() is Qt.CheckState.Checked)
+		if self.m_ui.accurate_meas_check.checkState() is Qt.CheckState.Checked:
+			self.m_ui.accurate_meas_box.setEnabled(True)
+			#grey_out(self.m_ui.accurate_meas_box)
+		else:
+			self.m_ui.accurate_meas_box.setEnabled(False)
+			#cancel_grey_out(self.m_ui.accurate_meas_box)
 
 	def backward_dir_button_slot(self, checked: bool):
 		if self.toggle_flag is False:
