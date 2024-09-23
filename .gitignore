@@ -161,3 +161,4 @@ cython_debug/
 dev/usbtmc0
 dev/usbtmc1
 /dev
+/test_vacs

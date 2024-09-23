@@ -1,7 +1,7 @@
-from PyQt6.QtCore import Qt, QCoreApplication
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import QPalette, QColor, QPixmap
-from PyQt6 import QtCore
+from PySide6.QtCore import Qt, QCoreApplication
+from PySide6.QtWidgets import *
+from PySide6.QtGui import QPalette, QColor, QPixmap
+from PySide6 import QtCore, QtGui
 
 import numpy as np
 import pyqtgraph as pg
@@ -12,6 +12,19 @@ from dataclasses import dataclass, asdict
 from design import Ui_MainWindow
 
 _translate = QCoreApplication.translate
+
+color_list = (	QColor("red"),
+				QColor("green"),
+				QColor("blue"),
+				QColor(0, 204, 204),
+				QColor(255, 0, 127),
+				QColor(204, 204, 0),
+				QColor(128, 128, 128),
+				QColor(255, 128, 0)
+				)
+
+def QColor_to_str(color: QColor):
+	return f"rgb({color.red()}, {color.green()}, {color.blue()})"
 
 @dataclass
 class Point:
@@ -35,9 +48,11 @@ class MeasureType(Enum):
 class MeasureTypeButton(QPushButton):
 	def __init__(self):
 		super(MeasureTypeButton, self).__init__()
-		self.state = MeasureType.none
-		self.setMinimumSize(37, 24)
-		self.setText(" ")
+		self.border_radius = 5
+		self.min_width = 15
+		self.padding = 2
+
+		self.set_state(MeasureType.none)
 		self.clicked.connect(self.slot)
 
 	def slot(self):
@@ -51,28 +66,46 @@ class MeasureTypeButton(QPushButton):
 			case MeasureType.light:
 				self.set_state(MeasureType.none)
 
-	def set_state(self, new_state: MeasureType):
+	def set_state(self, new_state: MeasureType, borber_color=None):
 		self.state = new_state
 		match new_state:
 			case MeasureType.none:
-				self.setDown(False)
-				self.setStyleSheet('QPushButton')
+				self.setStyleSheet(f"""	border: 1px outset grey;
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										padding: {self.padding}px
+										""")
 				self.setText(" ")
 
 			case MeasureType.dark:
-				self.setDown(True)
-				self.setStyleSheet('QPushButton {background-color: blue}')
+				self.setStyleSheet(f"""	background-color: blue;
+										border: 1px outset blue;
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										padding: {self.padding}px
+										""")
 				self.setText("D")
 
 			case MeasureType.light:
-				self.setDown(True)
-				self.setStyleSheet('QPushButton {background-color: red}')
 				self.setText("L")
+				self.setStyleSheet(f"""	background-color: red;
+										border: 1px outset red;
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										padding: {self.padding}px
+										""")
 
 			case MeasureType.done:
-				self.setDown(True)
-				self.setStyleSheet('QPushButton {background-color: green}')
 				self.setText("Done")
+				if borber_color:
+					self.setStyleSheet(f"""	background-color: green;
+											border: {self.padding + 1}px outset {QColor_to_str(borber_color)};
+											border-radius: {self.border_radius}px;
+											min-width: {self.min_width}px;
+											""")
+				else:
+					print("borber_color is None")
+
 
 
 class DefaultDiodeSegmentWidget(QWidget):
@@ -80,6 +113,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		super(DefaultDiodeSegmentWidget, self).__init__()
 		self.scheme_path = scheme_path
 		self.name = name
+		self.main_channel = 1
 
 		self.toggle_segment_flag = False
 		self.toggle_COM_flag = False
@@ -181,6 +215,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 	
 	def main_channel_1_button_slot(self, checked: bool):
 		if self.toggle_main_channel_flag is False:
+			self.main_channel = 1
 			self.toggle_main_channel_flag = True
 			self.main_channel_2_button.toggle()
 		else:
@@ -188,6 +223,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 
 	def main_channel_2_button_slot(self, checked: bool):
 		if self.toggle_main_channel_flag is False:
+			self.main_channel = 2
 			self.toggle_main_channel_flag = True
 			self.main_channel_1_button.toggle()
 		else:
@@ -197,9 +233,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 class PlotWidget(pg.PlotWidget):
 	def __init__(self):
 		super(PlotWidget, self).__init__()
-
 		self.setBackground("w")
-		self.pen = pg.mkPen(color="r", width=5)
 		self.setMinimumSize(500, 500)
 		styles = {"color": "black", "font-size": "18px", "font": "Calibri"}
 		#self.setTitle("vac", color="b", size="20pt")
@@ -207,18 +241,18 @@ class PlotWidget(pg.PlotWidget):
 		self.setLabel("bottom", "Bias, V", **styles)
 		self.addLegend()
 		self.showGrid(x=True, y=True)
-		self.setXRange(0, 1)
+		self.setXRange(-1, 1)
 		self.setYRange(0, 1)
+		self.getPlotItem().enableAutoRange(axis=pg.ViewBox.YAxis)
+		self.zero_axis_pen = pg.mkPen(color="black", width=1)
+		self.v_line = pg.InfiniteLine(pos=0, angle=0, pen=self.zero_axis_pen)
+		self.h_line = pg.InfiniteLine(pos=0, angle=90, pen=self.zero_axis_pen)
+		self.addItem(self.v_line)
+		self.addItem(self.h_line)
 
-	def plotting(self, x, y, label=" "):
-		return self.plot(x, y, pen=self.pen, name=label)
-
-
-class OutputWidget(QLabel):
-	def __init__(self):
-		super(OutputWidget, self).__init__()
-
-		self.setText("TEST")
+	def plotting(self, x, y, color, label=" "):
+		pen = pg.mkPen(color=color, width=3)
+		return self.plot(x, y, pen=pen, name=label)
 
 
 class MainWindow(QMainWindow):
@@ -228,15 +262,21 @@ class MainWindow(QMainWindow):
 		self.m_ui = Ui_MainWindow()
 		self.m_ui.setupUi(self)
 
+		self.setWindowTitle("MIPT VAC GUI")
+		
+		palette = QtGui.QGuiApplication.palette()
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.WindowText, QtGui.QColor(120, 120, 120))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Button, QtGui.QColor(240, 240, 240))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Text, QtGui.QColor(120, 120, 120))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.ButtonText, QtGui.QColor(120, 120, 120))
+		palette.setColor(QtGui.QPalette.ColorGroup.Disabled, QtGui.QPalette.ColorRole.Base, QtGui.QColor(240, 240, 240))
+		self.setPalette(palette)
+
 		self.plot_widget = PlotWidget()
-		self.output_widget = OutputWidget()
-		self.vsplitter = QSplitter(Qt.Orientation.Vertical)
 
 		self.move(20, 20)
 
-		self.vsplitter.addWidget(self.plot_widget)
-		self.vsplitter.addWidget(self.output_widget)
-		self.m_ui.main_splitter.insertWidget(0, self.vsplitter)
+		self.m_ui.main_splitter.insertWidget(0, self.plot_widget)
 
 		self.sample_name = ""
 		self.m_ui.sample_edit.setPlaceholderText(f"не более {self.m_ui.sample_edit.maxLength()} символов")
@@ -264,13 +304,29 @@ class MainWindow(QMainWindow):
 		self.m_ui.backward_dir_button.toggled.connect(self.backward_dir_button_slot)
 		self.m_ui.forward_dir_button.toggled.connect(self.forward_dir_button_slot)
 
-		self.measure_type_button_number = 8
+		self.m_ui.limit_left_spin.setMinimumWidth(110)
+		self.m_ui.limit_left_accurate_spin.setMinimumWidth(110)
+
+		self.m_ui.max_current_1_label.setMaximumWidth(60)
+		self.m_ui.max_current_2_label.setMaximumWidth(60)
+
+		self.m_ui.limit_left_spin.valueChanged.connect(self.limit_left_spin_slot)
+		self.m_ui.limit_right_spin.valueChanged.connect(self.limit_right_spin_slot)
+
+		self.measure_type_button_number = len(color_list)
 		self.measure_type_button_list = []
 		for i in range(self.measure_type_button_number):
 			measure_type_button = MeasureTypeButton()
 			self.measure_type_button_list.append(measure_type_button)
 			self.m_ui.horizontalLayout_5.addWidget(measure_type_button)
-		
+	
+	def limit_left_spin_slot(self, value):
+		old_xrange = self.plot_widget.getPlotItem().viewRange()[0]
+		self.plot_widget.setXRange(value, old_xrange[1])
+
+	def limit_right_spin_slot(self, value):
+		old_xrange = self.plot_widget.getPlotItem().viewRange()[0]
+		self.plot_widget.setXRange(old_xrange[0], value)
 
 	def substrate_combo_slot(self, index: int):
 		self.m_ui.segment_stacked.setCurrentIndex(index)
@@ -281,7 +337,12 @@ class MainWindow(QMainWindow):
 		self.sample_name = self.m_ui.sample_edit.text()
 
 	def accurate_meas_check_slot(self):
-		self.m_ui.accurate_meas_box.setEnabled(self.m_ui.accurate_meas_check.checkState() is Qt.CheckState.Checked)
+		if self.m_ui.accurate_meas_check.checkState() is Qt.CheckState.Checked:
+			self.m_ui.accurate_meas_box.setEnabled(True)
+			#grey_out(self.m_ui.accurate_meas_box)
+		else:
+			self.m_ui.accurate_meas_box.setEnabled(False)
+			#cancel_grey_out(self.m_ui.accurate_meas_box)
 
 	def backward_dir_button_slot(self, checked: bool):
 		if self.toggle_flag is False:
