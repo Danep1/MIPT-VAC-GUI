@@ -235,7 +235,7 @@ class PlotWidget(pg.PlotWidget):
 		super(PlotWidget, self).__init__()
 		self.setBackground("w")
 		self.setMinimumSize(500, 500)
-		styles = {"color": "black", "font-size": "18px", "font": "Calibri"}
+		styles = {"color": "black", "font-size": "16px", "font": "Calibri"}
 		#self.setTitle("vac", color="b", size="20pt")
 		self.setLabel("left", "Current, A", **styles)
 		self.setLabel("bottom", "Bias, V", **styles)

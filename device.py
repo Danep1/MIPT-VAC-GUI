@@ -109,6 +109,8 @@ class InsDSO4254C(Device):
 		if self.manufacture != "Hantek" or self.product_number != "DSO4254C":
 			raise SystemError("Wrong /usbtmc fd connected")
 
+	def prepare(self):
+		self.oscil.light_off()
 
 	def light_on(self):
 		self.write("dds:switch on\n")

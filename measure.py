@@ -23,6 +23,7 @@ class MeasurementManager:
 		self.instr = instr
 		self.window = window
 		self.oscil = oscil
+		oscil.light_off()
 
 		self.measure_type_list_saved = []
 		self.status = Status.ready
@@ -40,6 +41,7 @@ class MeasurementManager:
 		self.window.m_ui.reset_button.clicked.connect(self.reset_button_slot)
 
 	def __enter__(self):
+		#self.oscil.prepare()
 		self.window.show()
 		return self
 
@@ -129,15 +131,18 @@ class MeasurementManager:
 				meas_button.set_state(MeasureType.done, color)
 		else:
 			self.status = Status.done
-			self.window.m_ui.reset_button.setEnabled(True)
+		self.oscil.light_off()
+		self.window.m_ui.reset_button.setEnabled(True)
 		self.instr.unprepare()
 
 
 	def reset_button_slot(self):
 		match self.status:
 			case Status.done | Status.stop: ### Cброс кнопок режима измерения в состояние при нажатии Старт, разблокируются виджеты ###
-				print(self.status.name)
 				self.status = Status.ready
+				self.window.plot_widget
+				for item in self.window.plot_widget.listDataItems():
+					self.window.plot_widget.removeItem(item)
 				for meas_button, prev_state in zip(self.window.measure_type_button_list, self.measure_type_list_saved):
 					meas_button.set_state(prev_state)
 				for widget in [	self.window.m_ui.sample_frame, 
@@ -167,9 +172,12 @@ class MeasurementManager:
 		data_y = []
 		self.start_time = time.time()
 		self.line = self.window.plot_widget.plotting(data_x, data_y, color, legend_name)
-		for idx, voltage in enumerate(np.concatenate((	np.arange(0.0, right_limit, step), 
-														np.arange(right_limit, left_limit, -step), 
-														np.arange(left_limit, step, step)), axis=0)):
+		x_grid = np.concatenate((	np.arange(0.0, right_limit, step),
+									np.arange(right_limit, left_limit, -step),
+									np.arange(left_limit, step, step)), axis=0)
+		if self.window.forward_direction_flag is False:
+			#np.flip(x_grid)
+		for idx, voltage in enumerate(x_grid):
 			self.window.m_ui.statusbar.clearMessage()
 			await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
 			t = time.time() - self.start_time
