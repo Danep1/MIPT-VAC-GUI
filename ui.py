@@ -251,7 +251,7 @@ class PlotWidget(pg.PlotWidget):
 		self.addItem(self.h_line)
 
 	def plotting(self, x, y, color, label=" "):
-		pen = pg.mkPen(color=color, width=3)
+		pen = pg.mkPen(color=color, width=2)
 		return self.plot(x, y, pen=pen, name=label)
 
 
@@ -320,6 +320,14 @@ class MainWindow(QMainWindow):
 			self.measure_type_button_list.append(measure_type_button)
 			self.m_ui.horizontalLayout_5.addWidget(measure_type_button)
 	
+	def show_empty_sample_name_error(self):
+		msg_box = QMessageBox()
+		msg_box.setIcon(QMessageBox.Critical)
+		msg_box.setText("Не указано название образца!")
+		msg_box.setWindowTitle("Ошибка!")
+		msg_box.setStandardButtons(QMessageBox.Ok)
+		res = msg_box.exec()
+
 	def limit_left_spin_slot(self, value):
 		old_xrange = self.plot_widget.getPlotItem().viewRange()[0]
 		self.plot_widget.setXRange(value, old_xrange[1])

@@ -81,6 +81,9 @@ class MeasurementManager:
 				raise SystemError("Wrong state!")
 
 	async def start_button_slot(self):
+		if self.window.m_ui.sample_edit.text() == "":
+			self.window.show_empty_sample_name_error()
+			return None
 		self.status = Status.measuring
 		self.instr.prepare()
 		for widget in [	self.window.m_ui.sample_frame, 
@@ -93,6 +96,7 @@ class MeasurementManager:
 						self.window.m_ui.start_button,
 						]:
 			widget.setEnabled(False)
+		i = 0
 		for meas_button, color in zip(self.window.measure_type_button_list, color_list):
 			self.measure_type_list_saved.append(meas_button.state)
 			if meas_button.state is MeasureType.none:
@@ -100,10 +104,13 @@ class MeasurementManager:
 			if self.status == Status.stop:
 				break
 			if meas_button.state in (MeasureType.dark, MeasureType.light):
+				i += 1
 				if meas_button.state is MeasureType.dark:
 					self.oscil.light_off()
+					legend_name = f"{i}: dark"
 				else:
 					self.oscil.light_on()
+					legend_name = f"{i}: light"
 				await asyncio.sleep(2)
 				vac_dir = os.path.join(os.getcwd(), "test_vacs", self.gen_folder_name(meas_button.state))
 				if not os.path.exists(os.path.join(os.getcwd(), "test_vacs")):
@@ -116,7 +123,9 @@ class MeasurementManager:
 											self.window.m_ui.limit_left_spin.value(), 
 											self.window.m_ui.step_spin.value(), 
 											self.window.m_ui.delay_spin.value(),
-											color)
+											color,
+											legend_name,
+											)
 				meas_button.set_state(MeasureType.done, color)
 		else:
 			self.status = Status.done
@@ -153,26 +162,25 @@ class MeasurementManager:
 			case Status.ready:
 				pass
 
-	async def diode_cycle(self, output_f, channel: int, right_limit, left_limit, step, delay, color):
+	async def diode_cycle(self, output_f, channel: int, right_limit, left_limit, step, delay, color="black", legend_name=""):
 		data_x = []
 		data_y = []
 		self.start_time = time.time()
-		self.line = self.window.plot_widget.plotting(data_x, data_y, color, "TEST")
+		self.line = self.window.plot_widget.plotting(data_x, data_y, color, legend_name)
 		for idx, voltage in enumerate(np.concatenate((	np.arange(0.0, right_limit, step), 
 														np.arange(right_limit, left_limit, -step), 
-														np.arange(left_limit, 0.0, step)), axis=0)):
+														np.arange(left_limit, step, step)), axis=0)):
 			self.window.m_ui.statusbar.clearMessage()
 			await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
 			t = time.time() - self.start_time
 			if channel == 1:
 				ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
 				I, V = map(float, ans[0])
-				V = round(V, 5)
 				p = Point(idx, t, V, I, 0, 0)
 			elif channel == 2:
-				I, V = self.instr.measure_B()
-				V = round(float(V), 5)
-				p = Point(idx, t, 0, 0, V, I)
+				ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
+				I, V = map(float, ans[0])
+				p = Point(idx, t, V, I, 0, 0)
 			else:
 				raise ValueError("channel must equal 1 or 2")
 			if delay != 0:

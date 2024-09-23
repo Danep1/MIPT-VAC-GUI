@@ -9,8 +9,8 @@ from device import Ins2636B, InsDSO4254C
 from measure import MeasurementManager
 from ui import MainWindow
 
-INS_DEV_FILE = "./dev/usbtmc2"
-OSC_DEV_FILE = "./dev/usbtmc1"
+INS_DEV_FILE = "/dev/usbtmc0"
+OSC_DEV_FILE = "/dev/usbtmc1"
 
 
 def args_parsing():
