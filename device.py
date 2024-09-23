@@ -1,9 +1,8 @@
 import traceback as tb
 import os
-import asyncio
 
 class Device:
-	def __init__(self, device_fd):
+	def __init__(self, device_fd: int):
 		self.device_fd = device_fd
 		self.manufacture, self.product_number, self.serial_number, self.firmware_version = self.get_idn().rstrip().split(", ")
 		if sum(map(len, [self.manufacture, self.product_number, self.serial_number, self.firmware_version])) == 0:
@@ -12,7 +11,8 @@ class Device:
 
 	def get_idn(self):
 		self.write("*idn?\n")
-		return self.read()
+		ans = self.read()
+		return ans
 
 	def check_idn(self):
 		"""Call self.get_idn() and check device model: raise SystemError if something wrong"""
@@ -50,6 +50,7 @@ class Ins2636B(Device):
 		self.write("smub.source.func = smub.OUTPUT_DCVOLTS\n")
 		self.write("smub.source.autorangev = smub.AUTORANGE_ON\n")
 		self.write("smub.source.levelv = 0.0\n")
+		self.prepare()
 		return self
 
 	def __exit__(self, type, value, traceback):
@@ -65,23 +66,27 @@ class Ins2636B(Device):
 		self.write("smua.source.output = smua.OUTPUT_ON\n")
 		self.write("smub.source.output = smub.OUTPUT_ON\n")
 
+	def unprepare(self):
+		self.write("smua.source.output = smua.OUTPUT_OFF\n")
+		self.write("smub.source.output = smub.OUTPUT_OFF\n")
+
 	def set_current_limit_A(self, Imax):
 		self.write(f"smua.source.limiti = {Imax}\n")
 
 	def set_current_limit_B(self, Imax):
 		self.write(f"smub.source.limiti = {Imax}\n")
 
-	async def measure_A(self): # blocking function
+	def measure_A(self): # blocking function
 		self.write("i, v = smua.measure.iv()\n");
 		self.write("print(i, v)\n");
-		dev_output = self.dev_fd.readline();
-		return dev_output.split()
+		ans = self.read();
+		return ans.split()
 
-	async def measure_B(self): # blocking function
+	def measure_B(self): # blocking function
 		self.write("i, v = smub.measure.iv()\n");
 		self.write("print(i, v)\n");
-		dev_output = self.dev_fd.readline();
-		return dev_output.split()
+		ans = self.read();
+		return ans.split()
 
 	def set_A(self, voltage):
 		if type(voltage) == float:
@@ -111,9 +116,8 @@ class InsDSO4254C(Device):
 	def light_off(self):
 		self.write("dds:switch off\n")
 
-if __name__ == '__main__':
-	instr_fd = os.open("/dev/usbtmc2", os.O_RDWR)
-	oscil_fd = os.open("/dev/usbtmc1", os.O_RDWR)
-	instr = Ins2636B(instr_fd)
-	oscil = InsDSO4254C(oscil_fd)
 
+if __name__ == '__main__':
+	instr_fd = os.open("/dev/usbtmc0", os.O_RDWR)
+	instr = Device(instr_fd)
+	print(instr.get_idn())

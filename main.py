@@ -9,7 +9,7 @@ from device import Ins2636B, InsDSO4254C
 from measure import MeasurementManager
 from ui import MainWindow
 
-INS_DEV_FILE = "/dev/usbtmc2"
+INS_DEV_FILE = "/dev/usbtmc0"
 OSC_DEV_FILE = "/dev/usbtmc1"
 
 def args_parsing():
@@ -23,11 +23,10 @@ if __name__ == '__main__':
 	args = args_parsing()
 	instr_fd = os.open(INS_DEV_FILE, os.O_RDWR)
 	oscil_fd = os.open(OSC_DEV_FILE, os.O_RDWR)
-	instrument = Ins2636B(instr_fd)
 	oscilloscope = InsDSO4254C(oscil_fd)
 	app = QApplication(sys.argv)
 	window = MainWindow()
-	with MeasurementManager(instrument, oscilloscope, window) as manager:
+	with Ins2636B(instr_fd) as instrument, MeasurementManager(instrument, oscilloscope, window) as manager:
 		EXIT = QtAsyncio.run()
 	os.close(instr_fd)
 	os.close(oscil_fd)

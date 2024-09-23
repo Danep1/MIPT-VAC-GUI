@@ -81,6 +81,7 @@ class MeasurementManager:
 
 	async def start_button_slot(self):
 		self.status = Status.measuring
+		self.instr.prepare()
 		for widget in [	self.window.m_ui.sample_frame, 
 						self.window.m_ui.segment_stacked, 
 						self.window.m_ui.accurate_meas_check, 
@@ -117,12 +118,12 @@ class MeasurementManager:
 											color)
 				meas_button.set_state(MeasureType.done, color)
 		else:
-			print("All measments are completed")
 			self.status = Status.done
 			self.window.m_ui.reset_button.setEnabled(True)
+		self.instr.unprepare()
+
 
 	def reset_button_slot(self):
-		print("Resetting...")
 		match self.status:
 			case Status.done | Status.stop: ### Cброс кнопок режима измерения в состояние при нажатии Старт, разблокируются виджеты ###
 				print(self.status.name)
@@ -147,7 +148,6 @@ class MeasurementManager:
 	def stop_button_slot(self):
 		match self.status:
 			case Status.measuring:
-				print("Measure's stopped")
 				self.status = Status.stop
 			case Status.ready:
 				pass
@@ -160,27 +160,27 @@ class MeasurementManager:
 		for idx, voltage in enumerate(np.concatenate((	np.arange(0.0, right_limit, step), 
 														np.arange(right_limit, left_limit, -step), 
 														np.arange(left_limit, 0.0, step)), axis=0)):
-			#self.instr.set_A(float(voltage))
+			self.window.m_ui.statusbar.clearMessage()
+			await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
 			t = time.time() - self.start_time
 			if channel == 1:
-				I, V = voltage * 0.01, voltage
-				V = round(float(V), 5)
-				I = round(float(I), 5)
+				ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
+				I, V = map(float, ans[0])
+				V = round(V, 5)
 				p = Point(idx, t, V, I, 0, 0)
 			elif channel == 2:
-				I, V = voltage * 0.01, voltage
+				I, V = self.instr.measure_B()
 				V = round(float(V), 5)
-				I = round(float(I), 5)
 				p = Point(idx, t, 0, 0, V, I)
 			else:
 				raise ValueError("channel must equal 1 or 2")
-			await asyncio.sleep(0.5)
+			if delay != 0:
+				await asyncio.sleep(delay)
 			data_x.append(V)
 			data_y.append(I)
-			output_f.write(str(p))
+			await asyncio.gather( asyncio.to_thread(output_f.write, str(p)))
 			self.line.setData(data_x, data_y)
-			print(f"{voltage} V;") # change status bar
+			self.window.m_ui.statusbar.showMessage(f"V = {V} V")
 			if self.status is Status.stop:
 				break
-		else:
-			print("Measure's completed")
+

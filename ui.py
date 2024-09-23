@@ -255,13 +255,6 @@ class PlotWidget(pg.PlotWidget):
 		return self.plot(x, y, pen=pen, name=label)
 
 
-class OutputWidget(QLabel):
-	def __init__(self):
-		super(OutputWidget, self).__init__()
-
-		self.setText("TEST")
-
-
 class MainWindow(QMainWindow):
 	def __init__(self, parent=None):
 		super(MainWindow, self).__init__(parent)
@@ -280,14 +273,10 @@ class MainWindow(QMainWindow):
 		self.setPalette(palette)
 
 		self.plot_widget = PlotWidget()
-		self.output_widget = OutputWidget()
-		self.vsplitter = QSplitter(Qt.Orientation.Vertical)
 
-		self.move(600, 20)
+		self.move(20, 20)
 
-		self.vsplitter.addWidget(self.plot_widget)
-		self.vsplitter.addWidget(self.output_widget)
-		self.m_ui.main_splitter.insertWidget(0, self.vsplitter)
+		self.m_ui.main_splitter.insertWidget(0, self.plot_widget)
 
 		self.sample_name = ""
 		self.m_ui.sample_edit.setPlaceholderText(f"не более {self.m_ui.sample_edit.maxLength()} символов")
