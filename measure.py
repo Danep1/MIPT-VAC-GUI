@@ -90,11 +90,10 @@ class MeasurementManager:
 					return None
 				self.status = Status.measuring
 				self.window.m_ui.start_button.setIcon(self.window.pause_icon)
-				self.window.m_ui.start_button.setIcon(self.window.stop_icon)
+				self.window.m_ui.stop_button.setIcon(self.window.stop_icon)
 				self.instr.prepare()
 				for widget in [	self.window.m_ui.sample_frame, 
 								self.window.m_ui.segment_stacked, 
-								self.window.m_ui.accurate_meas_check, 
 								self.window.m_ui.meas_setup_widget,
 								self.window.m_ui.meas_orber_box,
 								self.window.m_ui.manual_panel_box,
@@ -103,10 +102,10 @@ class MeasurementManager:
 				i = 0
 				for meas_button, color in zip(self.window.measure_type_button_list, color_list):
 					self.measure_type_list_saved.append(meas_button.state)
-					match meas_button.state:
-						case MeasureType.none:
-							pass
-						case MeasureType.dark | MeasureType.light:
+					match meas_button.state, self.status:
+						case _, Status.stop:
+							break
+						case MeasureType.dark | MeasureType.light, _:
 							i += 1
 							if meas_button.state is MeasureType.dark:
 								self.oscil.light_off()
@@ -133,11 +132,15 @@ class MeasurementManager:
 				else:
 					self.status = Status.done
 				self.oscil.light_off()
-				self.window.m_ui.start_button.setIcon(self.window.start_icon)
+				self.window.m_ui.start_button.setIcon(self.window.play_icon)
+				self.window.m_ui.stop_button.setIcon(self.window.reset_icon)
 				self.instr.unprepare()
 			case Status.measuring:
 				self.status = Status.pause
-				self.window.m_ui.start_button.setIcon(self.window.start_icon)
+				self.window.m_ui.start_button.setIcon(self.window.play_icon)
+			case Status.pause:
+				self.status = Status.measuring
+				pass # implement!
 			case Status.stop:
 				pass
 			case Status.done:
@@ -151,7 +154,7 @@ class MeasurementManager:
 			case Status.measuring | Status.pause:
 				self.status = Status.stop
 				self.window.m_ui.stop_button.setIcon(self.window.reset_icon)
-				self.window.m_ui.start_button.setIcon(self.window.start_icon)
+				self.window.m_ui.start_button.setIcon(self.window.play_icon)
 			case Status.done | Status.stop: ### Cброс кнопок режима измерения в состояние при нажатии Старт, разблокируются виджеты, очищаем графики ###
 				self.status = Status.ready
 				self.window.plot_widget
@@ -161,7 +164,6 @@ class MeasurementManager:
 					meas_button.set_state(prev_state)
 				for widget in [	self.window.m_ui.sample_frame, 
 								self.window.m_ui.segment_stacked, 
-								self.window.m_ui.accurate_meas_check, 
 								self.window.m_ui.meas_setup_widget,
 								self.window.m_ui.meas_orber_box,
 								self.window.m_ui.manual_panel_box,

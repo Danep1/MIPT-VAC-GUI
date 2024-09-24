@@ -4,10 +4,10 @@ import os
 class Device:
 	def __init__(self, device_fd: int):
 		self.device_fd = device_fd
-		#self.manufacture, self.product_number, self.serial_number, self.firmware_version = self.get_idn().rstrip().split(", ")
-		#if sum(map(len, [self.manufacture, self.product_number, self.serial_number, self.firmware_version])) == 0:
-		#	raise SystemError("Got empty answer")
-		#self.check_idn()
+		self.manufacture, self.product_number, self.serial_number, self.firmware_version = self.get_idn().rstrip().split(", ")
+		if sum(map(len, [self.manufacture, self.product_number, self.serial_number, self.firmware_version])) == 0:
+			raise SystemError("Got empty answer")
+		self.check_idn()
 
 	def get_idn(self):
 		self.write("*idn?\n")
