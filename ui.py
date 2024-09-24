@@ -114,61 +114,55 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.scheme_path = scheme_path
 		self.name = name
 		self.main_channel = 1
-
-		self.toggle_segment_flag = False
-		self.toggle_COM_flag = False
-		self.toggle_main_channel_flag = False
+		self.COM = f"A{min_index}"
+		self.pixel = f"A{min_index + 1}"
 
 		self.layout = QGridLayout(self)
 		self.layout.setContentsMargins(5, 2, 5, 2)
 		self.layout.setSpacing(2)
 
-		self.segment_label = QLabel("Пиксель:")
+		self.pixel_label = QLabel("Пиксель:")
 		self.COM_label = QLabel("COM:")
 		self.main_channel_label = QLabel("Канал прибора:")
 
-		self.segment_A_button = QPushButton("A")
-		self.segment_B_button = QPushButton("B")
-		self.segment_A_button.setCheckable(True)
-		self.segment_B_button.setCheckable(True)
-		self.segment_A_button.setChecked(True)
-		self.segment_A_button.toggled.connect(self.segment_A_button_slot)
-		self.segment_B_button.toggled.connect(self.segment_B_button_slot)
+		self.pixel_A_button = QPushButton("A")
+		self.pixel_B_button = QPushButton("B")
+		self.pixel_A_button.setDown(True)
+		self.pixel_A_button.clicked.connect(self.pixel_A_button_slot)
+		self.pixel_B_button.clicked.connect(self.pixel_B_button_slot)
 
-		self.COM_A_button = QPushButton("A")
-		self.COM_B_button = QPushButton("B")
-		self.COM_A_button.setCheckable(True)
-		self.COM_B_button.setCheckable(True)
-		self.COM_A_button.setChecked(True)
-		self.COM_A_button.toggled.connect(self.COM_A_button_slot)
-		self.COM_B_button.toggled.connect(self.COM_B_button_slot)
-
-		self.segment_spin = QSpinBox()
-		self.segment_spin.setRange(min_index + 1, max_index - 1)
-		self.segment_spin.setValue(min_index + 1)
+		self.pixel_spin = QSpinBox()
+		self.pixel_spin.setRange(min_index, max_index)
+		self.pixel_spin.setValue(min_index)
 	
-		self.COM_spin = QSpinBox()
-		self.COM_spin.setRange(min_index, max_index)
-		self.COM_spin.setSingleStep(max_index - min_index)
-		self.COM_spin.setValue(max_index)
+		self.COM_A_max_button = QPushButton(f"A{max_index}")
+		self.COM_A_min_button = QPushButton(f"A{min_index}")
+		self.COM_B_max_button = QPushButton(f"B{max_index}")
+		self.COM_B_min_button = QPushButton(f"B{min_index}")
+
+		for button, slot in zip([self.COM_A_max_button, self.COM_A_min_button, self.COM_B_max_button, self.COM_B_min_button],
+								[self.COM_A_max_button_slot, self.COM_A_min_button_slot, self.COM_B_max_button_slot, self.COM_B_min_button_slot]
+			):
+			button.setMinimumWidth(10)
+			button.clicked.connect(slot)
+		self.COM_A_min_button.setDown(True)
 
 		self.main_channel_1_button = QPushButton("1")
 		self.main_channel_2_button = QPushButton("2")
-		self.main_channel_1_button.setCheckable(True)
-		self.main_channel_2_button.setCheckable(True)
-		self.main_channel_1_button.setChecked(True)
-		self.main_channel_1_button.toggled.connect(self.main_channel_1_button_slot)
-		self.main_channel_2_button.toggled.connect(self.main_channel_2_button_slot)
+		self.main_channel_1_button.setDown(True)
+		self.main_channel_1_button.clicked.connect(self.main_channel_1_button_slot)
+		self.main_channel_2_button.clicked.connect(self.main_channel_2_button_slot)
 
-		self.layout.addWidget(self.segment_label, 0, 0)
+		self.layout.addWidget(self.pixel_label, 0, 0)
 		self.layout.addWidget(self.COM_label, 1, 0)
 		self.layout.addWidget(self.main_channel_label, 2, 0)
-		self.layout.addWidget(self.segment_A_button, 0, 1)
-		self.layout.addWidget(self.segment_B_button, 0, 2)
-		self.layout.addWidget(self.segment_spin, 0, 3)
-		self.layout.addWidget(self.COM_A_button, 1, 1)
-		self.layout.addWidget(self.COM_B_button, 1, 2)
-		self.layout.addWidget(self.COM_spin, 1, 3)
+		self.layout.addWidget(self.pixel_A_button, 0, 1)
+		self.layout.addWidget(self.pixel_B_button, 0, 2)
+		self.layout.addWidget(self.pixel_spin, 0, 3)
+		self.layout.addWidget(self.COM_A_min_button, 1, 1)
+		self.layout.addWidget(self.COM_A_max_button, 1, 2)
+		self.layout.addWidget(self.COM_B_min_button, 1, 3)
+		self.layout.addWidget(self.COM_B_max_button, 1, 4)
 		self.layout.addWidget(self.main_channel_1_button, 2, 1)
 		self.layout.addWidget(self.main_channel_2_button, 2, 2)
         
@@ -187,49 +181,89 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.scheme_widget.setPixmap(pixmapImage)  
 		self.scheme_window.show()
 
-	def segment_A_button_slot(self, checked: bool):
-		if self.toggle_segment_flag is False:
-			self.toggle_segment_flag = True
-			self.segment_B_button.toggle()
+	def pixel_A_button_slot(self):
+		if not self.pixel_A_button.isDown():
+			self.pixel = 'A' + self.pixel[1:]
+			self.pixel_B_button.setDown(False)
+			self.pixel_A_button.setDown(True)
 		else:
-			self.toggle_segment_flag = False
+			self.pixel_A_button.setDown(True)
 
-	def segment_B_button_slot(self, checked: bool):
-		if self.toggle_segment_flag is False:
-			self.toggle_segment_flag = True
-			self.segment_A_button.toggle()
+	def pixel_B_button_slot(self):
+		if not self.pixel_B_button.isDown():
+			self.pixel = 'B' + self.pixel[1:]
+			self.pixel_A_button.setDown(False)
+			self.pixel_B_button.setDown(True)
 		else:
-			self.toggle_segment_flag = False
+			self.pixel_B_button.setDown(True)
 
-	def COM_A_button_slot(self, checked: bool):
-		if self.toggle_COM_flag is False:
-			self.toggle_COM_flag = True
-			self.COM_B_button.toggle()
+	def COM_A_min_button_slot(self):
+		if not self.COM_A_min_button.isDown():
+			self.COM = self.COM_A_min_button.text()
+			for button in [	self.COM_A_max_button,
+							self.COM_B_max_button,
+							self.COM_B_min_button,
+							]:
+				if button.isDown():
+					button.setDown(False)
+			self.COM_A_min_button.setDown(True)
 		else:
-			self.toggle_COM_flag = False
+			self.COM_A_min_button.setDown(True)
 
-	def COM_B_button_slot(self, checked: bool):
-		if self.toggle_COM_flag is False:
-			self.toggle_COM_flag = True
-			self.COM_A_button.toggle()
+	def COM_A_max_button_slot(self):
+		if not self.COM_A_min_button.isDown():
+			self.COM = self.COM_A_max_button.text()
+			for button in [	self.COM_A_min_button,
+							self.COM_B_max_button,
+							self.COM_B_min_button,
+							]:
+				if button.isDown():
+					button.setDown(False)
+			self.COM_A_max_button.setDown(True)
 		else:
-			self.toggle_COM_flag = False
-	
-	def main_channel_1_button_slot(self, checked: bool):
-		if self.toggle_main_channel_flag is False:
+			self.COM_A_max_button.setDown(True)
+
+	def COM_B_min_button_slot(self):
+		if not self.COM_B_min_button.isDown():
+			self.COM = self.COM_B_min_button.text()
+			for button in [	self.COM_A_max_button,
+							self.COM_B_max_button,
+							self.COM_A_min_button,
+							]:
+				if button.isDown():
+					button.setDown(False)
+			self.COM_B_min_button.setDown(True)
+		else:
+			self.COM_B_min_button.setDown(True)
+
+	def COM_B_max_button_slot(self):
+		if not self.COM_B_max_button.isDown():
+			self.COM = self.COM_B_max_button.text()
+			for button in [	self.COM_A_max_button,
+							self.COM_A_min_button,
+							self.COM_B_min_button,
+							]:
+				if button.isDown():
+					button.setDown(False)
+			self.COM_B_max_button.setDown(True)
+		else:
+			self.COM_B_max_button.setDown(True)
+
+	def main_channel_1_button_slot(self):
+		if not self.main_channel_1_button.isDown():
 			self.main_channel = 1
-			self.toggle_main_channel_flag = True
-			self.main_channel_2_button.toggle()
+			self.main_channel_2_button.setDown(False)
+			self.main_channel_1_button.setDown(True)
 		else:
-			self.toggle_main_channel_flag = False
+			self.main_channel_1_button.setDown(True)
 
-	def main_channel_2_button_slot(self, checked: bool):
-		if self.toggle_main_channel_flag is False:
+	def main_channel_2_button_slot(self):
+		if not self.main_channel_2_button.isDown():
 			self.main_channel = 2
-			self.toggle_main_channel_flag = True
-			self.main_channel_1_button.toggle()
+			self.main_channel_1_button.setDown(False)
+			self.main_channel_2_button.setDown(True)
 		else:
-			self.toggle_main_channel_flag = False
+			self.main_channel_2_button.setDown(True)
 
 
 class PlotWidget(pg.PlotWidget):
@@ -304,9 +338,9 @@ class MainWindow(QMainWindow):
 		self.m_ui.substrate_combo.activated.connect(self.substrate_combo_slot)
 
 		self.forward_direction_flag = True
-		self.toggle_flag = False
-		self.m_ui.backward_dir_button.toggled.connect(self.backward_dir_button_slot)
-		self.m_ui.forward_dir_button.toggled.connect(self.forward_dir_button_slot)
+		self.m_ui.forward_dir_button.setDown(self.forward_direction_flag)
+		self.m_ui.backward_dir_button.clicked.connect(self.backward_dir_button_slot)
+		self.m_ui.forward_dir_button.clicked.connect(self.forward_dir_button_slot)
 
 		self.m_ui.limit_left_spin.setMinimumWidth(110)
 		self.m_ui.limit_left_accurate_spin.setMinimumWidth(110)
@@ -341,27 +375,27 @@ class MainWindow(QMainWindow):
 		self.plot_widget.setXRange(old_xrange[0], value)
 
 	def substrate_combo_slot(self, index: int):
-		self.m_ui.segment_stacked.setCurrentIndex(index)
+		self.m_ui.pixel_stacked.setCurrentIndex(index)
 		self.m_ui.substrate_scheme_button.clicked.disconnect()
 		self.m_ui.substrate_scheme_button.clicked.connect(self.substrate_list[index].show_scheme)
 
 	def sample_edit_slot(self):
 		self.sample_name = self.m_ui.sample_edit.text()
 
-	def backward_dir_button_slot(self, checked: bool):
-		if self.toggle_flag is False:
-			self.forward_direction_flag = not checked
-			self.toggle_flag = True
-			self.m_ui.forward_dir_button.toggle()
+	def backward_dir_button_slot(self):
+		if not self.m_ui.backward_dir_button.isDown():
+			self.forward_direction_flag = True
+			self.m_ui.forward_dir_button.setDown(False)
+			self.m_ui.backward_dir_button.setDown(True)
 		else:
-			self.toggle_flag = False
+			self.m_ui.backward_dir_button.setDown(True)
 
-	def forward_dir_button_slot(self, checked: bool):
-		if self.toggle_flag is False:
-			self.forward_direction_flag = checked
-			self.toggle_flag = True
-			self.m_ui.backward_dir_button.toggle()
+	def forward_dir_button_slot(self):
+		if not self.m_ui.forward_dir_button.isDown():
+			self.forward_direction_flag = False
+			self.m_ui.backward_dir_button.setDown(False)
+			self.m_ui.forward_dir_button.setDown(True)
 		else:
-			self.toggle_flag = False
+			self.m_ui.forward_dir_button.setDown(True)
 
 	

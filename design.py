@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(521, 633)
+        MainWindow.resize(439, 633)
         self.action = QAction(MainWindow)
         self.action.setObjectName(u"action")
         self.centralwidget = QWidget(MainWindow)
@@ -34,11 +34,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setSpacing(5)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setSizeConstraint(QLayout.SetMinimumSize)
+        self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
         self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
         self.main_splitter = QSplitter(self.centralwidget)
         self.main_splitter.setObjectName(u"main_splitter")
-        self.main_splitter.setOrientation(Qt.Horizontal)
+        self.main_splitter.setOrientation(Qt.Orientation.Horizontal)
         self.control_panel_widget = QWidget(self.main_splitter)
         self.control_panel_widget.setObjectName(u"control_panel_widget")
         self.verticalLayout = QVBoxLayout(self.control_panel_widget)
@@ -99,17 +99,16 @@ class Ui_MainWindow(object):
         self.horizontalLayout_6 = QHBoxLayout(self.direction_box)
         self.horizontalLayout_6.setSpacing(0)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.horizontalLayout_6.setContentsMargins(5, 5, 5, 5)
+        self.horizontalLayout_6.setContentsMargins(5, 2, 5, 2)
         self.backward_dir_button = QPushButton(self.direction_box)
         self.backward_dir_button.setObjectName(u"backward_dir_button")
-        self.backward_dir_button.setCheckable(True)
+        self.backward_dir_button.setCheckable(False)
 
         self.horizontalLayout_6.addWidget(self.backward_dir_button)
 
         self.forward_dir_button = QPushButton(self.direction_box)
         self.forward_dir_button.setObjectName(u"forward_dir_button")
-        self.forward_dir_button.setCheckable(True)
-        self.forward_dir_button.setChecked(True)
+        self.forward_dir_button.setChecked(False)
 
         self.horizontalLayout_6.addWidget(self.forward_dir_button)
 
@@ -121,9 +120,10 @@ class Ui_MainWindow(object):
         self.gridLayout_6 = QGridLayout(self.common_meas_box)
         self.gridLayout_6.setSpacing(2)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.gridLayout_6.setContentsMargins(-1, 4, -1, 4)
         self.limit_left_label = QLabel(self.common_meas_box)
         self.limit_left_label.setObjectName(u"limit_left_label")
-        self.limit_left_label.setLayoutDirection(Qt.LeftToRight)
+        self.limit_left_label.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         self.gridLayout_6.addWidget(self.limit_left_label, 1, 0, 1, 1)
 
@@ -149,7 +149,7 @@ class Ui_MainWindow(object):
         self.limit_left_spin.setObjectName(u"limit_left_spin")
         self.limit_left_spin.setMinimum(-20.000000000000000)
         self.limit_left_spin.setMaximum(20.000000000000000)
-        self.limit_left_spin.setValue(1.000000000000000)
+        self.limit_left_spin.setValue(-1.000000000000000)
 
         self.gridLayout_6.addWidget(self.limit_left_spin, 1, 1, 1, 1)
 
@@ -215,7 +215,7 @@ class Ui_MainWindow(object):
         self.limit_left_accurate_spin.setObjectName(u"limit_left_accurate_spin")
         self.limit_left_accurate_spin.setMinimum(-20.000000000000000)
         self.limit_left_accurate_spin.setMaximum(20.000000000000000)
-        self.limit_left_accurate_spin.setValue(1.000000000000000)
+        self.limit_left_accurate_spin.setValue(-1.000000000000000)
 
         self.gridLayout.addWidget(self.limit_left_accurate_spin, 0, 3, 1, 1)
 
@@ -254,7 +254,8 @@ class Ui_MainWindow(object):
 
         self.direction_label = QLabel(self.meas_setup_widget)
         self.direction_label.setObjectName(u"direction_label")
-        self.direction_label.setMargin(11)
+        self.direction_label.setWordWrap(False)
+        self.direction_label.setMargin(5)
 
         self.gridLayout_5.addWidget(self.direction_label, 2, 0, 1, 1)
 
@@ -264,7 +265,7 @@ class Ui_MainWindow(object):
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setHorizontalSpacing(5)
         self.gridLayout_4.setVerticalSpacing(2)
-        self.gridLayout_4.setContentsMargins(11, 2, 5, 5)
+        self.gridLayout_4.setContentsMargins(11, 2, 5, 2)
         self.max_current_1_label = QLabel(self.groupBox)
         self.max_current_1_label.setObjectName(u"max_current_1_label")
 
@@ -316,7 +317,6 @@ class Ui_MainWindow(object):
         icon = QIcon()
         icon.addFile(u"resources/play.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.start_button.setIcon(icon)
-        self.start_button.setIconSize(QSize(30, 30))
         self.start_button.setCheckable(False)
 
         self.horizontalLayout_4.addWidget(self.start_button)
@@ -326,7 +326,6 @@ class Ui_MainWindow(object):
         icon1 = QIcon()
         icon1.addFile(u"resources/reset.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.stop_button.setIcon(icon1)
-        self.stop_button.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_4.addWidget(self.stop_button)
 
@@ -335,7 +334,6 @@ class Ui_MainWindow(object):
         icon2 = QIcon()
         icon2.addFile(u"resources/u-turn.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.U__button.setIcon(icon2)
-        self.U__button.setIconSize(QSize(30, 30))
 
         self.horizontalLayout_4.addWidget(self.U__button)
 
@@ -344,7 +342,6 @@ class Ui_MainWindow(object):
         icon3 = QIcon()
         icon3.addFile(u"resources/next-button.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.next_button.setIcon(icon3)
-        self.next_button.setIconSize(QSize(30, 30))
         self.next_button.setFlat(False)
 
         self.horizontalLayout_4.addWidget(self.next_button)
@@ -415,7 +412,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 521, 26))
+        self.menuBar.setGeometry(QRect(0, 0, 439, 20))
         self.menu = QMenu(self.menuBar)
         self.menu.setObjectName(u"menu")
         MainWindow.setMenuBar(self.menuBar)
