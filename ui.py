@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtWidgets import *
-from PySide6.QtGui import QPalette, QColor, QPixmap
+from PySide6.QtGui import QPalette, QColor, QPixmap, QIcon
 from PySide6 import QtCore, QtGui
 
 import numpy as np
@@ -120,8 +120,10 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.toggle_main_channel_flag = False
 
 		self.layout = QGridLayout(self)
+		self.layout.setContentsMargins(5, 2, 5, 2)
+		self.layout.setSpacing(2)
 
-		self.segment_label = QLabel("Сегмент:")
+		self.segment_label = QLabel("Пиксель:")
 		self.COM_label = QLabel("COM:")
 		self.main_channel_label = QLabel("Канал прибора:")
 
@@ -169,7 +171,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.layout.addWidget(self.COM_spin, 1, 3)
 		self.layout.addWidget(self.main_channel_1_button, 2, 1)
 		self.layout.addWidget(self.main_channel_2_button, 2, 2)
-
+        
 	def show_scheme(self):
 		self.scheme_window = QMainWindow()
 		self.scheme_widget = QLabel()
@@ -262,6 +264,11 @@ class MainWindow(QMainWindow):
 		self.m_ui = Ui_MainWindow()
 		self.m_ui.setupUi(self)
 
+		self.pause_icon = QIcon('resources/pause.png')
+		self.play_icon = QIcon('resources/play.png')
+		self.stop_icon = QIcon('resources/stop.png')
+		self.reset_icon = QIcon('resources/reset.png')
+
 		self.setWindowTitle("MIPT VAC GUI")
 		
 		palette = QtGui.QGuiApplication.palette()
@@ -295,9 +302,6 @@ class MainWindow(QMainWindow):
 
 		self.m_ui.substrate_scheme_button.clicked.connect(self.substrate_list[0].show_scheme)
 		self.m_ui.substrate_combo.activated.connect(self.substrate_combo_slot)
-
-		self.m_ui.accurate_meas_box.setEnabled(False)
-		self.m_ui.accurate_meas_check.stateChanged.connect(self.accurate_meas_check_slot)
 
 		self.forward_direction_flag = True
 		self.toggle_flag = False
@@ -343,14 +347,6 @@ class MainWindow(QMainWindow):
 
 	def sample_edit_slot(self):
 		self.sample_name = self.m_ui.sample_edit.text()
-
-	def accurate_meas_check_slot(self):
-		if self.m_ui.accurate_meas_check.checkState() is Qt.CheckState.Checked:
-			self.m_ui.accurate_meas_box.setEnabled(True)
-			#grey_out(self.m_ui.accurate_meas_box)
-		else:
-			self.m_ui.accurate_meas_box.setEnabled(False)
-			#cancel_grey_out(self.m_ui.accurate_meas_box)
 
 	def backward_dir_button_slot(self, checked: bool):
 		if self.toggle_flag is False:

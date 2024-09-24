@@ -15,6 +15,7 @@ from device import Ins2636B, InsDSO4254C
 class Status(Enum):
 	ready = 0
 	measuring = 1
+	pause = 2
 	stop = 3
 	done = 4
 
@@ -38,7 +39,6 @@ class MeasurementManager:
 
 		self.window.m_ui.start_button.clicked.connect(lambda: asyncio.ensure_future(self.start_button_slot()))
 		self.window.m_ui.stop_button.clicked.connect(self.stop_button_slot)
-		self.window.m_ui.reset_button.clicked.connect(self.reset_button_slot)
 
 	def __enter__(self):
 		#self.oscil.prepare()
@@ -83,62 +83,76 @@ class MeasurementManager:
 				raise SystemError("Wrong state!")
 
 	async def start_button_slot(self):
-		if self.window.m_ui.sample_edit.text() == "":
-			self.window.show_empty_sample_name_error()
-			return None
-		self.status = Status.measuring
-		self.instr.prepare()
-		for widget in [	self.window.m_ui.sample_frame, 
-						self.window.m_ui.segment_stacked, 
-						self.window.m_ui.accurate_meas_check, 
-						self.window.m_ui.meas_setup_widget,
-						self.window.m_ui.meas_orber_box,
-						self.window.m_ui.manual_panel_box,
-						self.window.m_ui.reset_button,
-						self.window.m_ui.start_button,
-						]:
-			widget.setEnabled(False)
-		i = 0
-		for meas_button, color in zip(self.window.measure_type_button_list, color_list):
-			self.measure_type_list_saved.append(meas_button.state)
-			if meas_button.state is MeasureType.none:
-				pass
-			if self.status == Status.stop:
-				break
-			if meas_button.state in (MeasureType.dark, MeasureType.light):
-				i += 1
-				if meas_button.state is MeasureType.dark:
-					self.oscil.light_off()
-					legend_name = f"{i}: dark"
-				else:
-					self.oscil.light_on()
-					legend_name = f"{i}: light"
-				await asyncio.sleep(2)
-				vac_dir = os.path.join(os.getcwd(), "test_vacs", self.gen_folder_name(meas_button.state))
-				if not os.path.exists(os.path.join(os.getcwd(), "test_vacs")):
-					os.mkdir(os.path.join(os.getcwd(), "test_vacs"))
-				os.mkdir(vac_dir)
-				with open(os.path.join(vac_dir, "vac.dat"), mode="w+") as output_f:
-					await self.diode_cycle(	output_f, 
-											self.window.m_ui.segment_stacked.currentWidget().main_channel,
-										 	self.window.m_ui.limit_right_spin.value(), 
-											self.window.m_ui.limit_left_spin.value(), 
-											self.window.m_ui.step_spin.value(), 
-											self.window.m_ui.delay_spin.value(),
-											color,
-											legend_name,
-											)
-				meas_button.set_state(MeasureType.done, color)
-		else:
-			self.status = Status.done
-		self.oscil.light_off()
-		self.window.m_ui.reset_button.setEnabled(True)
-		self.instr.unprepare()
-
-
-	def reset_button_slot(self):
 		match self.status:
-			case Status.done | Status.stop: ### Cброс кнопок режима измерения в состояние при нажатии Старт, разблокируются виджеты ###
+			case Status.ready:
+				if self.window.m_ui.sample_edit.text() == "":
+					self.window.show_empty_sample_name_error()
+					return None
+				self.status = Status.measuring
+				self.window.m_ui.start_button.setIcon(self.window.pause_icon)
+				self.window.m_ui.start_button.setIcon(self.window.stop_icon)
+				self.instr.prepare()
+				for widget in [	self.window.m_ui.sample_frame, 
+								self.window.m_ui.segment_stacked, 
+								self.window.m_ui.accurate_meas_check, 
+								self.window.m_ui.meas_setup_widget,
+								self.window.m_ui.meas_orber_box,
+								self.window.m_ui.manual_panel_box,
+								]:
+					widget.setEnabled(False)
+				i = 0
+				for meas_button, color in zip(self.window.measure_type_button_list, color_list):
+					self.measure_type_list_saved.append(meas_button.state)
+					match meas_button.state:
+						case MeasureType.none:
+							pass
+						case MeasureType.dark | MeasureType.light:
+							i += 1
+							if meas_button.state is MeasureType.dark:
+								self.oscil.light_off()
+								legend_name = f"{i}: dark"
+							else:
+								self.oscil.light_on()
+								legend_name = f"{i}: light"
+							await asyncio.sleep(2)
+							vac_dir = os.path.join(os.getcwd(), "test_vacs", self.gen_folder_name(meas_button.state))
+							if not os.path.exists(os.path.join(os.getcwd(), "test_vacs")):
+								os.mkdir(os.path.join(os.getcwd(), "test_vacs"))
+							os.mkdir(vac_dir)
+							with open(os.path.join(vac_dir, "vac.dat"), mode="w+") as output_f:
+								await self.diode_cycle(	output_f, 
+														self.window.m_ui.segment_stacked.currentWidget().main_channel,
+													 	self.window.m_ui.limit_right_spin.value(), 
+														self.window.m_ui.limit_left_spin.value(), 
+														self.window.m_ui.step_spin.value(), 
+														self.window.m_ui.delay_spin.value(),
+														color,
+														legend_name,
+														)
+							meas_button.set_state(MeasureType.done, color)
+				else:
+					self.status = Status.done
+				self.oscil.light_off()
+				self.window.m_ui.start_button.setIcon(self.window.start_icon)
+				self.instr.unprepare()
+			case Status.measuring:
+				self.status = Status.pause
+				self.window.m_ui.start_button.setIcon(self.window.start_icon)
+			case Status.stop:
+				pass
+			case Status.done:
+				pass
+
+	def stop_button_slot(self):
+		match self.status:
+			case Status.ready: ### Cброс кнопок режима измерения в none ###
+				for meas_button in self.window.measure_type_button_list:
+					meas_button.set_state(MeasureType.none)
+			case Status.measuring | Status.pause:
+				self.status = Status.stop
+				self.window.m_ui.stop_button.setIcon(self.window.reset_icon)
+				self.window.m_ui.start_button.setIcon(self.window.start_icon)
+			case Status.done | Status.stop: ### Cброс кнопок режима измерения в состояние при нажатии Старт, разблокируются виджеты, очищаем графики ###
 				self.status = Status.ready
 				self.window.plot_widget
 				for item in self.window.plot_widget.listDataItems():
@@ -151,53 +165,48 @@ class MeasurementManager:
 								self.window.m_ui.meas_setup_widget,
 								self.window.m_ui.meas_orber_box,
 								self.window.m_ui.manual_panel_box,
-								self.window.m_ui.start_button,
 								]:
 					widget.setEnabled(True)
-			case Status.ready: ### Cброс кнопок режима измерения в none ###
-				for meas_button in self.window.measure_type_button_list:
-					meas_button.set_state(MeasureType.none)
-			case _:
-				print("Wrong status")
-
-	def stop_button_slot(self):
-		match self.status:
-			case Status.measuring:
-				self.status = Status.stop
-			case Status.ready:
-				pass
 
 	async def diode_cycle(self, output_f, channel: int, right_limit, left_limit, step, delay, color="black", legend_name=""):
 		data_x = []
 		data_y = []
-		self.start_time = time.time()
-		self.line = self.window.plot_widget.plotting(data_x, data_y, color, legend_name)
+		start_time = time.time()
+		line = self.window.plot_widget.plotting(data_x, data_y, color, legend_name)
 		x_grid = np.concatenate((	np.arange(0.0, right_limit, step),
 									np.arange(right_limit, left_limit, -step),
 									np.arange(left_limit, step, step)), axis=0)
 		if self.window.forward_direction_flag is False:
-			#np.flip(x_grid)
+			pass #np.flip(x_grid)
 		for idx, voltage in enumerate(x_grid):
 			self.window.m_ui.statusbar.clearMessage()
-			await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
-			t = time.time() - self.start_time
-			if channel == 1:
-				ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
-				I, V = map(float, ans[0])
-				p = Point(idx, t, V, I, 0, 0)
-			elif channel == 2:
-				ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
-				I, V = map(float, ans[0])
-				p = Point(idx, t, V, I, 0, 0)
-			else:
-				raise ValueError("channel must equal 1 or 2")
-			if delay != 0:
-				await asyncio.sleep(delay)
-			data_x.append(V)
-			data_y.append(I)
-			await asyncio.gather( asyncio.to_thread(output_f.write, str(p)))
-			self.line.setData(data_x, data_y)
-			self.window.m_ui.statusbar.showMessage(f"V = {V} V")
-			if self.status is Status.stop:
-				break
+			match self.status:
+				case Status.measuring:
+					await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
+					t = time.time() - start_time
+					if channel == 1:
+						ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
+						I, V = map(float, ans[0])
+						p = Point(idx, t, V, I, 0, 0)
+					elif channel == 2:
+						ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
+						I, V = map(float, ans[0])
+						p = Point(idx, t, V, I, 0, 0)
+					else:
+						raise ValueError("channel must equal 1 or 2")
+					if delay != 0:
+						await asyncio.sleep(delay)
+					data_x.append(V)
+					data_y.append(I)
+					r = await asyncio.gather( asyncio.to_thread(output_f.write, str(p)))
+					if r == 0:
+						raise SystemError("Couldn't write into file")
+					line.setData(data_x, data_y)
+					self.window.m_ui.statusbar.showMessage(f"V = {V} V")
+				case Status.pause:
+					await asyncio.sleep(0.1)
+				case Status.stop:
+					break
+				case _:
+					pass
 
