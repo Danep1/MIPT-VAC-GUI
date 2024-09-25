@@ -59,8 +59,8 @@ class Ins2636B(Device):
 			exit()
 		self.set_A(0.0)
 		self.set_B(0.0)
-		self.write("smua.source.output = smua.OUTPUT_OFF\n")
-		self.write("smub.source.output = smub.OUTPUT_OFF\n")
+		self.instr.unprepare()
+
 
 	def prepare(self):
 		self.write("smua.source.output = smua.OUTPUT_ON\n")
@@ -109,7 +109,10 @@ class InsDSO4254C(Device):
 		if self.manufacture != "Hantek" or self.product_number != "DSO4254C":
 			raise SystemError("Wrong /usbtmc fd connected")
 
-	def prepare(self):
+	def __enter__(self):
+		self.oscil.light_off()
+
+	def __exit__(self):
 		self.oscil.light_off()
 
 	def light_on(self):

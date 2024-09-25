@@ -20,7 +20,7 @@ class Status(Enum):
 	done = 4
 
 class MeasurementManager:
-	def __init__(self, instr: Ins2636B, oscil: InsDSO4254C, window: MainWindow):
+	def __init__(self, instr: Ins2636B, oscil: InsDSO4254C, window: MainWindow, vac_dir="test_vacs"):
 		self.instr = instr
 		self.window = window
 		self.oscil = oscil
@@ -41,7 +41,6 @@ class MeasurementManager:
 		self.window.m_ui.stop_button.clicked.connect(self.stop_button_slot)
 
 	def __enter__(self):
-		#self.oscil.prepare()
 		self.window.show()
 		return self
 
@@ -124,8 +123,8 @@ class MeasurementManager:
 																				self.window.m_ui.segment_stacked.currentWidget().pixel,
 																				self.window.m_ui.segment_stacked.currentWidget().COM,
 																				meas_button.state))
-							if not os.path.exists(os.path.join(os.getcwd(), "test_vacs")):
-								os.mkdir(os.path.join(os.getcwd(), "test_vacs"))
+							if not os.path.exists(os.path.join(os.getcwd(), vac_dir)):
+								os.mkdir(os.path.join(os.getcwd(), vac_dir))
 							os.mkdir(vac_dir)
 							with open(os.path.join(vac_dir, "vac.dat"), mode="w+") as output_f:
 								await self.diode_cycle(	output_f, 
