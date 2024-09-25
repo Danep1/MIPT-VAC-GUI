@@ -73,20 +73,22 @@ class MeasurementManager:
 		self.window.m_ui.manual_bias_2_spin.setValue(0.0)
 		self.instr.set_B(0.0)
 
-	def gen_folder_name(self, state):
+	def gen_diode_folder_name(self, sample, pixel, COM, state):
 		match state:
 			case MeasureType.dark:
-				return time.strftime("%Y-%m-%d_%H-%M-%S") + "_" + self.window.m_ui.sample_edit.text() + "_dark"
+				meas_t = "dark"
 			case MeasureType.light:
-				return time.strftime("%Y-%m-%d_%H-%M-%S") + "_" + self.window.m_ui.sample_edit.text() + "_light"
+				meas_t = "light"
 			case _:
 				raise SystemError("Wrong state!")
+		return "_".join([time.strftime("%Y-%m-%d_%H-%M-%S"), sample, pixel, COM, meas_t])
+
 
 	async def start_button_slot(self):
 		match self.status:
 			case Status.ready:
 				if self.window.m_ui.sample_edit.text() == "":
-					self.window.show_empty_sample_name_error()
+					self.window.show_critical_error_box("Не указано название образца!")
 					return None
 				self.status = Status.measuring
 				self.window.m_ui.start_button.setIcon(self.window.pause_icon)
@@ -110,11 +112,18 @@ class MeasurementManager:
 							if meas_button.state is MeasureType.dark:
 								self.oscil.light_off()
 								legend_name = f"{i}: dark"
+								style = Qt.SolidLine
 							else:
 								self.oscil.light_on()
 								legend_name = f"{i}: light"
+								style = Qt.DotLine
 							await asyncio.sleep(2)
-							vac_dir = os.path.join(os.getcwd(), "test_vacs", self.gen_folder_name(meas_button.state))
+							vac_dir = os.path.join(	os.getcwd(), 
+													"test_vacs", 
+													self.gen_diode_folder_name(self.window.m_ui.sample_edit.text(), 
+																				self.window.m_ui.segment_stacked.currentWidget().pixel,
+																				self.window.m_ui.segment_stacked.currentWidget().COM,
+																				meas_button.state))
 							if not os.path.exists(os.path.join(os.getcwd(), "test_vacs")):
 								os.mkdir(os.path.join(os.getcwd(), "test_vacs"))
 							os.mkdir(vac_dir)
@@ -125,7 +134,9 @@ class MeasurementManager:
 														self.window.m_ui.limit_left_spin.value(), 
 														self.window.m_ui.step_spin.value(), 
 														self.window.m_ui.delay_spin.value(),
-														color,
+														color=color,
+														width=3,
+														style=style,
 														legend_name,
 														)
 							meas_button.set_state(MeasureType.done, color)
@@ -170,7 +181,7 @@ class MeasurementManager:
 								]:
 					widget.setEnabled(True)
 
-	async def diode_cycle(self, output_f, channel: int, right_limit, left_limit, step, delay, color="black", legend_name=""):
+	async def diode_cycle(self, output_f, channel: int, right_limit, left_limit, step, delay, color="black", width=2, style=Qt.SolidLine, legend_name=""):
 		data_x = []
 		data_y = []
 		start_time = time.time()
@@ -178,6 +189,7 @@ class MeasurementManager:
 		x_grid = np.concatenate((	np.arange(0.0, right_limit, step),
 									np.arange(right_limit, left_limit, -step),
 									np.arange(left_limit, step, step)), axis=0)
+		line.setPen(color=color, width=2, style=Qt.SolidLine)
 		if self.window.forward_direction_flag is False:
 			pass #np.flip(x_grid)
 		for idx, voltage in enumerate(x_grid):

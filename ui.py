@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt, QCoreApplication
 from PySide6.QtWidgets import *
-from PySide6.QtGui import QPalette, QColor, QPixmap, QIcon
+from PySide6.QtGui import QPalette, QColor, QPixmap, QIcon, QTransform
 from PySide6 import QtCore, QtGui
 
 import numpy as np
@@ -13,15 +13,15 @@ from design import Ui_MainWindow
 
 _translate = QCoreApplication.translate
 
-color_list = (	QColor("red"),
-				QColor("green"),
-				QColor("blue"),
-				QColor(0, 204, 204),
-				QColor(255, 0, 127),
-				QColor(204, 204, 0),
-				QColor(128, 128, 128),
-				QColor(255, 128, 0)
-				)
+dark_style_list = (	QColor("red"),
+					QColor("green"),
+					QColor("blue"),
+					QColor(0, 204, 204),
+					QColor(255, 0, 127),
+					QColor(204, 204, 0),
+					QColor(128, 128, 128),
+					QColor(255, 128, 0)
+					)
 
 def QColor_to_str(color: QColor):
 	return f"rgb({color.red()}, {color.green()}, {color.blue()})"
@@ -46,11 +46,13 @@ class MeasureType(Enum):
 	done = 3
 
 class MeasureTypeButton(QPushButton):
-	def __init__(self):
+	def __init__(self, border_color=QColor("black")):
 		super(MeasureTypeButton, self).__init__()
 		self.border_radius = 5
+		self.border_width = 3
 		self.min_width = 15
 		self.padding = 2
+		self.border_color = border_color
 
 		self.set_state(MeasureType.none)
 		self.clicked.connect(self.slot)
@@ -66,7 +68,7 @@ class MeasureTypeButton(QPushButton):
 			case MeasureType.light:
 				self.set_state(MeasureType.none)
 
-	def set_state(self, new_state: MeasureType, borber_color=None):
+	def set_state(self, new_state: MeasureTypes):
 		self.state = new_state
 		match new_state:
 			case MeasureType.none:
@@ -78,18 +80,18 @@ class MeasureTypeButton(QPushButton):
 				self.setText(" ")
 
 			case MeasureType.dark:
-				self.setStyleSheet(f"""	background-color: blue;
-										border: 1px outset blue;
+				self.setText("D")
+				self.setStyleSheet(f"""	font-style: bold;
+										border: 1px outset {QColor_to_str(self.border_color)};
 										border-radius: {self.border_radius}px;
 										min-width: {self.min_width}px;
 										padding: {self.padding}px
 										""")
-				self.setText("D")
 
 			case MeasureType.light:
 				self.setText("L")
-				self.setStyleSheet(f"""	background-color: red;
-										border: 1px outset red;
+				self.setStyleSheet(f"""	font-style: bold;
+										border: 1px outset {QColor_to_str(self.border_color)};
 										border-radius: {self.border_radius}px;
 										min-width: {self.min_width}px;
 										padding: {self.padding}px
@@ -98,15 +100,14 @@ class MeasureTypeButton(QPushButton):
 			case MeasureType.done:
 				self.setText("Done")
 				if borber_color:
-					self.setStyleSheet(f"""	background-color: green;
+					self.setStyleSheet(f"""	font-style: bold;
+											background-color: green;
 											border: {self.padding + 1}px outset {QColor_to_str(borber_color)};
 											border-radius: {self.border_radius}px;
 											min-width: {self.min_width}px;
 											""")
 				else:
 					print("borber_color is None")
-
-
 
 class DefaultDiodeSegmentWidget(QWidget):
 	def __init__(self, name: str, min_index: int, max_index: int, scheme_path: str):
@@ -302,6 +303,9 @@ class MainWindow(QMainWindow):
 		self.play_icon = QIcon('resources/play.png')
 		self.stop_icon = QIcon('resources/stop.png')
 		self.reset_icon = QIcon('resources/reset.png')
+		self.arrow_pixmap = QPixmap('resources/arrow.png')
+		self.larrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(90)))
+		self.rarrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(-90)))
 
 		self.setWindowTitle("MIPT VAC GUI")
 		
@@ -338,6 +342,8 @@ class MainWindow(QMainWindow):
 		self.m_ui.substrate_combo.activated.connect(self.substrate_combo_slot)
 
 		self.forward_direction_flag = True
+		self.m_ui.forward_dir_button.setIcon(self.larrow_icon)
+		self.m_ui.forward_dir_button.setIcon(self.rarrow_icon)
 		self.m_ui.forward_dir_button.setDown(self.forward_direction_flag)
 		self.m_ui.backward_dir_button.clicked.connect(self.backward_dir_button_slot)
 		self.m_ui.forward_dir_button.clicked.connect(self.forward_dir_button_slot)
@@ -353,15 +359,15 @@ class MainWindow(QMainWindow):
 
 		self.measure_type_button_number = len(color_list)
 		self.measure_type_button_list = []
-		for i in range(self.measure_type_button_number):
-			measure_type_button = MeasureTypeButton()
+		for color in color_list:
+			measure_type_button = MeasureTypeButton(color)
 			self.measure_type_button_list.append(measure_type_button)
 			self.m_ui.horizontalLayout_5.addWidget(measure_type_button)
 	
-	def show_empty_sample_name_error(self):
+	def show_critical_error_box(self, text="Ошибка!"):
 		msg_box = QMessageBox()
 		msg_box.setIcon(QMessageBox.Critical)
-		msg_box.setText("Не указано название образца!")
+		msg_box.setText(text)
 		msg_box.setWindowTitle("Ошибка!")
 		msg_box.setStandardButtons(QMessageBox.Ok)
 		res = msg_box.exec()

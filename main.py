@@ -12,7 +12,6 @@ from ui import MainWindow
 INS_DEV_FILE = "/dev/usbtmc1"
 OSC_DEV_FILE = "/dev/usbtmc0"
 
-
 def args_parsing():
 	parser = argparse.ArgumentParser(description="FET4P -- a program for measuring of charge carrier mobility of "
 												"thin films in field effect transistor structure with the use of "

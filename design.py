@@ -26,7 +26,12 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(439, 633)
+        MainWindow.resize(527, 578)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+        MainWindow.setSizePolicy(sizePolicy)
         self.action = QAction(MainWindow)
         self.action.setObjectName(u"action")
         self.centralwidget = QWidget(MainWindow)
@@ -34,11 +39,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2 = QHBoxLayout(self.centralwidget)
         self.horizontalLayout_2.setSpacing(5)
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.horizontalLayout_2.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+        self.horizontalLayout_2.setSizeConstraint(QLayout.SetMinimumSize)
         self.horizontalLayout_2.setContentsMargins(5, 5, 5, 5)
         self.main_splitter = QSplitter(self.centralwidget)
         self.main_splitter.setObjectName(u"main_splitter")
-        self.main_splitter.setOrientation(Qt.Orientation.Horizontal)
         self.control_panel_widget = QWidget(self.main_splitter)
         self.control_panel_widget.setObjectName(u"control_panel_widget")
         self.verticalLayout = QVBoxLayout(self.control_panel_widget)
@@ -121,37 +125,17 @@ class Ui_MainWindow(object):
         self.gridLayout_6.setSpacing(2)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.gridLayout_6.setContentsMargins(-1, 4, -1, 4)
-        self.limit_left_label = QLabel(self.common_meas_box)
-        self.limit_left_label.setObjectName(u"limit_left_label")
-        self.limit_left_label.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.delay_spin = QDoubleSpinBox(self.common_meas_box)
+        self.delay_spin.setObjectName(u"delay_spin")
+        self.delay_spin.setMaximum(30.000000000000000)
+        self.delay_spin.setSingleStep(0.100000000000000)
 
-        self.gridLayout_6.addWidget(self.limit_left_label, 1, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.delay_spin, 3, 1, 1, 1)
 
-        self.limit_right_label = QLabel(self.common_meas_box)
-        self.limit_right_label.setObjectName(u"limit_right_label")
+        self.delay_label = QLabel(self.common_meas_box)
+        self.delay_label.setObjectName(u"delay_label")
 
-        self.gridLayout_6.addWidget(self.limit_right_label, 2, 0, 1, 1)
-
-        self.limit_right_spin = QDoubleSpinBox(self.common_meas_box)
-        self.limit_right_spin.setObjectName(u"limit_right_spin")
-        self.limit_right_spin.setMinimum(-20.000000000000000)
-        self.limit_right_spin.setMaximum(20.000000000000000)
-        self.limit_right_spin.setValue(1.000000000000000)
-
-        self.gridLayout_6.addWidget(self.limit_right_spin, 2, 1, 1, 1)
-
-        self.step_label = QLabel(self.common_meas_box)
-        self.step_label.setObjectName(u"step_label")
-
-        self.gridLayout_6.addWidget(self.step_label, 3, 0, 1, 1)
-
-        self.limit_left_spin = QDoubleSpinBox(self.common_meas_box)
-        self.limit_left_spin.setObjectName(u"limit_left_spin")
-        self.limit_left_spin.setMinimum(-20.000000000000000)
-        self.limit_left_spin.setMaximum(20.000000000000000)
-        self.limit_left_spin.setValue(-1.000000000000000)
-
-        self.gridLayout_6.addWidget(self.limit_left_spin, 1, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.delay_label, 3, 0, 1, 1)
 
         self.step_spin = QDoubleSpinBox(self.common_meas_box)
         self.step_spin.setObjectName(u"step_spin")
@@ -161,29 +145,39 @@ class Ui_MainWindow(object):
         self.step_spin.setSingleStep(0.005000000000000)
         self.step_spin.setValue(0.100000000000000)
 
-        self.gridLayout_6.addWidget(self.step_spin, 3, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.step_spin, 2, 1, 1, 1)
 
-        self.delay_label = QLabel(self.common_meas_box)
-        self.delay_label.setObjectName(u"delay_label")
+        self.limit_right_label = QLabel(self.common_meas_box)
+        self.limit_right_label.setObjectName(u"limit_right_label")
 
-        self.gridLayout_6.addWidget(self.delay_label, 4, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.limit_right_label, 1, 0, 1, 1)
 
-        self.delay_spin = QDoubleSpinBox(self.common_meas_box)
-        self.delay_spin.setObjectName(u"delay_spin")
-        self.delay_spin.setMaximum(30.000000000000000)
-        self.delay_spin.setSingleStep(0.100000000000000)
+        self.limit_left_label = QLabel(self.common_meas_box)
+        self.limit_left_label.setObjectName(u"limit_left_label")
+        self.limit_left_label.setLayoutDirection(Qt.LeftToRight)
 
-        self.gridLayout_6.addWidget(self.delay_spin, 4, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.limit_left_label, 0, 0, 1, 1)
 
-        self.label = QLabel(self.common_meas_box)
-        self.label.setObjectName(u"label")
+        self.limit_left_spin = QDoubleSpinBox(self.common_meas_box)
+        self.limit_left_spin.setObjectName(u"limit_left_spin")
+        self.limit_left_spin.setMinimum(-20.000000000000000)
+        self.limit_left_spin.setMaximum(20.000000000000000)
+        self.limit_left_spin.setValue(-1.000000000000000)
 
-        self.gridLayout_6.addWidget(self.label, 0, 0, 1, 1)
+        self.gridLayout_6.addWidget(self.limit_left_spin, 0, 1, 1, 1)
 
-        self.zero_spin = QDoubleSpinBox(self.common_meas_box)
-        self.zero_spin.setObjectName(u"zero_spin")
+        self.step_label = QLabel(self.common_meas_box)
+        self.step_label.setObjectName(u"step_label")
 
-        self.gridLayout_6.addWidget(self.zero_spin, 0, 1, 1, 1)
+        self.gridLayout_6.addWidget(self.step_label, 2, 0, 1, 1)
+
+        self.limit_right_spin = QDoubleSpinBox(self.common_meas_box)
+        self.limit_right_spin.setObjectName(u"limit_right_spin")
+        self.limit_right_spin.setMinimum(-20.000000000000000)
+        self.limit_right_spin.setMaximum(20.000000000000000)
+        self.limit_right_spin.setValue(1.000000000000000)
+
+        self.gridLayout_6.addWidget(self.limit_right_spin, 1, 1, 1, 1)
 
 
         self.gridLayout_5.addWidget(self.common_meas_box, 0, 0, 1, 1)
@@ -412,7 +406,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 439, 20))
+        self.menuBar.setGeometry(QRect(0, 0, 527, 26))
         self.menu = QMenu(self.menuBar)
         self.menu.setObjectName(u"menu")
         MainWindow.setMenuBar(self.menuBar)
@@ -439,11 +433,10 @@ class Ui_MainWindow(object):
         self.backward_dir_button.setText(QCoreApplication.translate("MainWindow", u"\u2190", None))
         self.forward_dir_button.setText(QCoreApplication.translate("MainWindow", u"\u2192", None))
         self.common_meas_box.setTitle(QCoreApplication.translate("MainWindow", u"\u041e\u0431\u0449\u0438\u0439 \u0434\u0438\u0430\u043f\u0430\u0437\u043e\u043d", None))
-        self.limit_left_label.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u0435\u0434\u0435\u043b \u0441\u043b\u0435\u0432\u0430:", None))
-        self.limit_right_label.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u0435\u0434\u0435\u043b \u0441\u043f\u0440\u0430\u0432\u0430:", None))
-        self.step_label.setText(QCoreApplication.translate("MainWindow", u"\u0428\u0430\u0433:", None))
         self.delay_label.setText(QCoreApplication.translate("MainWindow", u"\u0417\u0430\u0434\u0435\u0440\u0436\u043a\u0430:", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"\u0418\u0441\u0445\u043e\u0434\u043d\u0430\u044f \u0442\u043e\u0447\u043a\u0430:", None))
+        self.limit_right_label.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u0435\u0434\u0435\u043b \u0441\u043f\u0440\u0430\u0432\u0430:", None))
+        self.limit_left_label.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u0435\u0434\u0435\u043b \u0441\u043b\u0435\u0432\u0430:", None))
+        self.step_label.setText(QCoreApplication.translate("MainWindow", u"\u0428\u0430\u0433:", None))
         self.accurate_meas_box.setTitle(QCoreApplication.translate("MainWindow", u"\u0414\u0438\u0430\u043f\u0430\u0437\u043e\u043d \u0441 \u043c\u0435\u043d\u044c\u0448\u0438\u043c \u0448\u0430\u0433\u043e\u043c", None))
         self.limit_left_accurate_label.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u0435\u0434\u0435\u043b \u0441\u043b\u0435\u0432\u0430:", None))
         self.delay_accurate_label.setText(QCoreApplication.translate("MainWindow", u"\u0417\u0430\u0434\u0435\u0440\u0436\u043a\u0430:", None))
