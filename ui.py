@@ -13,15 +13,15 @@ from design import Ui_MainWindow
 
 _translate = QCoreApplication.translate
 
-dark_style_list = (	QColor("red"),
-					QColor("green"),
-					QColor("blue"),
-					QColor(0, 204, 204),
-					QColor(255, 0, 127),
-					QColor(204, 204, 0),
-					QColor(128, 128, 128),
-					QColor(255, 128, 0)
-					)
+color_list = (	QColor("red"),
+				QColor("green"),
+				QColor("blue"),
+				QColor(0, 204, 204),
+				QColor(255, 0, 127),
+				QColor(204, 204, 0),
+				QColor(128, 128, 128),
+				QColor(255, 128, 0)
+				)
 
 def QColor_to_str(color: QColor):
 	return f"rgb({color.red()}, {color.green()}, {color.blue()})"
@@ -68,7 +68,7 @@ class MeasureTypeButton(QPushButton):
 			case MeasureType.light:
 				self.set_state(MeasureType.none)
 
-	def set_state(self, new_state: MeasureTypes):
+	def set_state(self, new_state: MeasureType):
 		self.state = new_state
 		match new_state:
 			case MeasureType.none:

@@ -8,7 +8,7 @@ import asyncio
 from enum import Enum, unique
 import os
 
-from ui import MainWindow, QApplication, MeasureType, Point, color_list, QColor, QColor_to_str
+from ui import MainWindow, QApplication, MeasureType, Point, color_list, QColor, QColor_to_str, Qt
 from device import Ins2636B, InsDSO4254C
 
 @unique
@@ -136,7 +136,7 @@ class MeasurementManager:
 														color=color,
 														width=3,
 														style=style,
-														legend_name,
+														legend_name=legend_name,
 														)
 							meas_button.set_state(MeasureType.done, color)
 				else:
