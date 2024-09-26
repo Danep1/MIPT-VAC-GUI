@@ -20,11 +20,11 @@ class Status(Enum):
 	done = 4
 
 class MeasurementManager:
-	def __init__(self, instr: Ins2636B, oscil: InsDSO4254C, window: MainWindow, vac_dir="test_vacs"):
+	def __init__(self, instr: Ins2636B, oscil: InsDSO4254C, window: MainWindow, output_dir="test_vacs"):
 		self.instr = instr
 		self.window = window
 		self.oscil = oscil
-		oscil.light_off()
+		self.output_dir = output_dir
 
 		self.measure_type_list_saved = []
 		self.status = Status.ready
@@ -117,15 +117,13 @@ class MeasurementManager:
 								legend_name = f"{i}: light"
 								style = Qt.DotLine
 							await asyncio.sleep(2)
-							vac_dir = os.path.join(	os.getcwd(), 
-													"test_vacs", 
-													self.gen_diode_folder_name(self.window.m_ui.sample_edit.text(), 
-																				self.window.m_ui.segment_stacked.currentWidget().pixel,
-																				self.window.m_ui.segment_stacked.currentWidget().COM,
-																				meas_button.state))
-							if not os.path.exists(os.path.join(os.getcwd(), vac_dir)):
-								os.mkdir(os.path.join(os.getcwd(), vac_dir))
-							os.mkdir(vac_dir)
+							vac_dir = os.path.join(self.output_dir, self.gen_diode_folder_name(self.window.m_ui.sample_edit.text(),
+																							self.window.m_ui.segment_stacked.currentWidget().pixel,
+																							self.window.m_ui.segment_stacked.currentWidget().COM,
+																							meas_button.state))
+							if not os.path.exists(self.output_dir):
+								os.mkdir(self.output_dir)
+							os.mkdir(os.path.join(vac_dir))
 							with open(os.path.join(vac_dir, "vac.dat"), mode="w+") as output_f:
 								await self.diode_cycle(	output_f, 
 														self.window.m_ui.segment_stacked.currentWidget().main_channel,
@@ -138,7 +136,7 @@ class MeasurementManager:
 														style=style,
 														legend_name=legend_name,
 														)
-							meas_button.set_state(MeasureType.done, color)
+							meas_button.set_state(MeasureType.done)
 				else:
 					self.status = Status.done
 				self.oscil.light_off()
@@ -188,7 +186,7 @@ class MeasurementManager:
 		x_grid = np.concatenate((	np.arange(0.0, right_limit, step),
 									np.arange(right_limit, left_limit, -step),
 									np.arange(left_limit, step, step)), axis=0)
-		line.setPen(color=color, width=2, style=Qt.SolidLine)
+		line.setPen(color=color, width=2, style=style)
 		if self.window.forward_direction_flag is False:
 			pass #np.flip(x_grid)
 		for idx, voltage in enumerate(x_grid):

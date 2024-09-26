@@ -31,7 +31,7 @@
      <number>5</number>
     </property>
     <property name="sizeConstraint">
-     <enum>QLayout::SetMinimumSize</enum>
+     <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
     </property>
     <property name="leftMargin">
      <number>5</number>
@@ -47,6 +47,9 @@
     </property>
     <item>
      <widget class="QSplitter" name="main_splitter">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
       <widget class="QWidget" name="control_panel_widget" native="true">
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
@@ -219,6 +222,9 @@
               </property>
               <item row="3" column="1">
                <widget class="QDoubleSpinBox" name="delay_spin">
+                <property name="suffix">
+                 <string> с</string>
+                </property>
                 <property name="maximum">
                  <double>30.000000000000000</double>
                 </property>
@@ -236,6 +242,9 @@
               </item>
               <item row="2" column="1">
                <widget class="QDoubleSpinBox" name="step_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="decimals">
                  <number>3</number>
                 </property>
@@ -263,7 +272,7 @@
               <item row="0" column="0">
                <widget class="QLabel" name="limit_left_label">
                 <property name="layoutDirection">
-                 <enum>Qt::LeftToRight</enum>
+                 <enum>Qt::LayoutDirection::LeftToRight</enum>
                 </property>
                 <property name="text">
                  <string>Предел слева:</string>
@@ -277,6 +286,9 @@
                   <width>100</width>
                   <height>0</height>
                  </size>
+                </property>
+                <property name="suffix">
+                 <string> В</string>
                 </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
@@ -298,6 +310,9 @@
               </item>
               <item row="1" column="1">
                <widget class="QDoubleSpinBox" name="limit_right_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -359,6 +374,9 @@
                   <height>0</height>
                  </size>
                 </property>
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -372,6 +390,9 @@
               </item>
               <item row="4" column="3">
                <widget class="QDoubleSpinBox" name="delay_accurate_spin">
+                <property name="suffix">
+                 <string> с</string>
+                </property>
                 <property name="maximum">
                  <double>30.000000000000000</double>
                 </property>
@@ -382,6 +403,9 @@
               </item>
               <item row="1" column="3">
                <widget class="QDoubleSpinBox" name="limit_right_accurate_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="minimum">
                  <double>-20.000000000000000</double>
                 </property>
@@ -395,6 +419,9 @@
               </item>
               <item row="2" column="3">
                <widget class="QDoubleSpinBox" name="step_accurate_spin">
+                <property name="suffix">
+                 <string> В</string>
+                </property>
                 <property name="decimals">
                  <number>3</number>
                 </property>
@@ -475,6 +502,9 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="max_current_1_spin">
+                <property name="suffix">
+                 <string> А</string>
+                </property>
                 <property name="maximum">
                  <double>5.000000000000000</double>
                 </property>
@@ -485,6 +515,9 @@
               </item>
               <item row="0" column="3">
                <widget class="QDoubleSpinBox" name="max_current_2_spin">
+                <property name="suffix">
+                 <string> А</string>
+                </property>
                 <property name="maximum">
                  <double>5.000000000000000</double>
                 </property>
@@ -726,18 +759,18 @@
      <x>0</x>
      <y>0</y>
      <width>527</width>
-     <height>26</height>
+     <height>20</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menu">
+   <widget class="QMenu" name="file_menu">
     <property name="title">
      <string>Файл</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="choose_vac_dir"/>
    </widget>
-   <addaction name="menu"/>
+   <addaction name="file_menu"/>
   </widget>
-  <action name="action">
+  <action name="choose_vac_dir">
    <property name="text">
     <string>Выбрать путь сохранения</string>
    </property>

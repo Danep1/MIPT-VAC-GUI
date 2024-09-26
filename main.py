@@ -23,9 +23,14 @@ if __name__ == '__main__':
 	oscil_fd = os.open(args.oscil, os.O_RDWR)
 	app = QApplication(sys.argv)
 	window = MainWindow()
-	with Ins2636B(instr_fd) as instrument, InsDSO4254C(oscil_fd) as oscilloscope:
-		with MeasurementManager(instrument, oscilloscope, window, args.output) as manager:
-			EXIT = QtAsyncio.run()
+	instrument = Ins2636B(instr_fd)
+	oscilloscope = InsDSO4254C(oscil_fd)
+	instrument.__enter__()
+	oscilloscope.__enter__()
+	with MeasurementManager(instrument, oscilloscope, window, args.output) as manager:
+		EXIT = QtAsyncio.run()
+	instrument.__exit__(None, None, None)
+	oscilloscope.__exit__(None, None, None)
 	os.close(instr_fd)
 	os.close(oscil_fd)
 	sys.exit(EXIT)

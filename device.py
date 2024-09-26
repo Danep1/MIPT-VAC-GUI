@@ -59,7 +59,7 @@ class Ins2636B(Device):
 			exit()
 		self.set_A(0.0)
 		self.set_B(0.0)
-		self.instr.unprepare()
+		self.unprepare()
 
 
 	def prepare(self):
@@ -110,10 +110,12 @@ class InsDSO4254C(Device):
 			raise SystemError("Wrong /usbtmc fd connected")
 
 	def __enter__(self):
-		self.oscil.light_off()
+		self.light_off()
 
-	def __exit__(self):
-		self.oscil.light_off()
+	def __exit__(self, type, value, traceback):
+		if type is not None:
+			tb.print_tb(traceback)
+		self.light_off()
 
 	def light_on(self):
 		self.write("dds:switch on\n")

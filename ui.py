@@ -5,7 +5,7 @@ from PySide6 import QtCore, QtGui
 
 import numpy as np
 import pyqtgraph as pg
-import sys, time
+import sys, time, os
 from enum import Enum, unique
 from dataclasses import dataclass, asdict
 
@@ -13,13 +13,13 @@ from design import Ui_MainWindow
 
 _translate = QCoreApplication.translate
 
-color_list = (	QColor("red"),
+color_list = (	QColor("black"),
+				QColor("red"),
 				QColor("green"),
 				QColor("blue"),
-				QColor(0, 204, 204),
-				QColor(255, 0, 127),
 				QColor(204, 204, 0),
-				QColor(128, 128, 128),
+				QColor(255, 0, 127),
+				QColor(0, 204, 204),
 				QColor(255, 128, 0)
 				)
 
@@ -49,6 +49,7 @@ class MeasureTypeButton(QPushButton):
 	def __init__(self, border_color=QColor("black")):
 		super(MeasureTypeButton, self).__init__()
 		self.border_radius = 5
+		self.border_width_none = 1
 		self.border_width = 3
 		self.min_width = 15
 		self.padding = 2
@@ -72,42 +73,36 @@ class MeasureTypeButton(QPushButton):
 		self.state = new_state
 		match new_state:
 			case MeasureType.none:
-				self.setStyleSheet(f"""	border: 1px outset grey;
+				self.setStyleSheet(f"""	border: {self.border_width_none}px outset grey;
 										border-radius: {self.border_radius}px;
 										min-width: {self.min_width}px;
-										padding: {self.padding}px
+										padding: {self.border_width - self.border_width_none}px
 										""")
 				self.setText(" ")
 
 			case MeasureType.dark:
 				self.setText("D")
 				self.setStyleSheet(f"""	font-style: bold;
-										border: 1px outset {QColor_to_str(self.border_color)};
+										border: {self.border_width}px outset {QColor_to_str(self.border_color)};
 										border-radius: {self.border_radius}px;
 										min-width: {self.min_width}px;
-										padding: {self.padding}px
 										""")
 
 			case MeasureType.light:
 				self.setText("L")
 				self.setStyleSheet(f"""	font-style: bold;
-										border: 1px outset {QColor_to_str(self.border_color)};
+										border: {self.border_width}px outset {QColor_to_str(self.border_color)};
 										border-radius: {self.border_radius}px;
 										min-width: {self.min_width}px;
-										padding: {self.padding}px
 										""")
 
 			case MeasureType.done:
 				self.setText("Done")
-				if borber_color:
-					self.setStyleSheet(f"""	font-style: bold;
-											background-color: green;
-											border: {self.padding + 1}px outset {QColor_to_str(borber_color)};
-											border-radius: {self.border_radius}px;
-											min-width: {self.min_width}px;
-											""")
-				else:
-					print("borber_color is None")
+				self.setStyleSheet(f"""	font-style: bold;
+										border: {self.border_width}px outset {QColor_to_str(self.border_color)};
+										border-radius: {self.border_radius}px;
+										min-width: {self.min_width}px;
+										""")
 
 class DefaultDiodeSegmentWidget(QWidget):
 	def __init__(self, name: str, min_index: int, max_index: int, scheme_path: str):
@@ -271,7 +266,7 @@ class PlotWidget(pg.PlotWidget):
 	def __init__(self):
 		super(PlotWidget, self).__init__()
 		self.setBackground("w")
-		self.setMinimumSize(500, 500)
+		self.setMinimumSize(700, 500)
 		styles = {"color": "black", "font-size": "16px", "font": "Calibri"}
 		#self.setTitle("vac", color="b", size="20pt")
 		self.setLabel("left", "Current, A", **styles)
@@ -299,11 +294,11 @@ class MainWindow(QMainWindow):
 		self.m_ui = Ui_MainWindow()
 		self.m_ui.setupUi(self)
 
-		self.pause_icon = QIcon('resources/pause.png')
-		self.play_icon = QIcon('resources/play.png')
-		self.stop_icon = QIcon('resources/stop.png')
-		self.reset_icon = QIcon('resources/reset.png')
-		self.arrow_pixmap = QPixmap('resources/arrow.png')
+		self.pause_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/pause.png'))
+		self.play_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/play.png'))
+		self.stop_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/stop.png'))
+		self.reset_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/reset.png'))
+		self.arrow_pixmap = QPixmap(os.path.join(os.path.dirname(sys.argv[0]), 'resources/arrow.png'))
 		self.larrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(90)))
 		self.rarrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(-90)))
 
@@ -328,11 +323,11 @@ class MainWindow(QMainWindow):
 		self.m_ui.sample_edit.editingFinished.connect(self.sample_edit_slot)
 
 		self.substrate_list = []
-		self.substrate_list.append(DefaultDiodeSegmentWidget("D500", 1, 10, "./resources/D500.png"))
-		self.substrate_list.append(DefaultDiodeSegmentWidget("OP1", 1, 10, "./resources/OP1.png"))
-		self.substrate_list.append(DefaultDiodeSegmentWidget("OP2", 1, 15, "./resources/OP2.png")) # must be modified!!!
+		self.substrate_list.append(DefaultDiodeSegmentWidget("D500", 1, 10, os.path.join(os.path.dirname(sys.argv[0]), "resources/D500.png")))
+		self.substrate_list.append(DefaultDiodeSegmentWidget("OP1", 1, 10, os.path.join(os.path.dirname(sys.argv[0]), "resources/OP1.png")))
+		self.substrate_list.append(DefaultDiodeSegmentWidget("OP2", 1, 15, os.path.join(os.path.dirname(sys.argv[0]), "resources/OP2.png"))) # must be modified!!!
 		#self.substrate_list.append(DefaultDiodeSegmentWidget("MD1", 1, 10, "./resources/MD1.png"))
-		self.substrate_list.append(DefaultDiodeSegmentWidget("MD2", 0, 14, "./resources/MD2.png"))
+		self.substrate_list.append(DefaultDiodeSegmentWidget("MD2", 0, 14, os.path.join(os.path.dirname(sys.argv[0]), "resources/MD2.png")))
 
 		for substrate_widget in self.substrate_list:
 			self.m_ui.segment_stacked.addWidget(substrate_widget)
@@ -341,9 +336,13 @@ class MainWindow(QMainWindow):
 		self.m_ui.substrate_scheme_button.clicked.connect(self.substrate_list[0].show_scheme)
 		self.m_ui.substrate_combo.activated.connect(self.substrate_combo_slot)
 
+		self.m_ui.start_button.setIcon(self.play_icon)
+		self.m_ui.stop_button.setIcon(self.stop_icon)
+		#self.m_ui.stop_button.setIcon(self.stop_icon)
+
 		self.forward_direction_flag = True
 		self.m_ui.forward_dir_button.setIcon(self.larrow_icon)
-		self.m_ui.forward_dir_button.setIcon(self.rarrow_icon)
+		self.m_ui.backward_dir_button.setIcon(self.rarrow_icon)
 		self.m_ui.forward_dir_button.setDown(self.forward_direction_flag)
 		self.m_ui.backward_dir_button.clicked.connect(self.backward_dir_button_slot)
 		self.m_ui.forward_dir_button.clicked.connect(self.forward_dir_button_slot)
