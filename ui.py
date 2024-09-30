@@ -51,7 +51,7 @@ class MeasureTypeButton(QPushButton):
 		self.border_radius = 5
 		self.border_width_none = 1
 		self.border_width = 3
-		self.min_width = 15
+		self.min_width = 10
 		self.padding = 2
 		self.border_color = border_color
 
@@ -113,6 +113,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.COM = f"A{min_index}"
 		self.pixel = f"A{min_index + 1}"
 
+		self.setStyleSheet("QPushButton {min-width: 15}")
 		self.layout = QGridLayout(self)
 		self.layout.setContentsMargins(5, 2, 5, 2)
 		self.layout.setSpacing(2)
@@ -139,7 +140,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		for button, slot in zip([self.COM_A_max_button, self.COM_A_min_button, self.COM_B_max_button, self.COM_B_min_button],
 								[self.COM_A_max_button_slot, self.COM_A_min_button_slot, self.COM_B_max_button_slot, self.COM_B_min_button_slot]
 			):
-			button.setMinimumWidth(10)
+			#button.setMinimumWidth(5)
 			button.clicked.connect(slot)
 		self.COM_A_min_button.setDown(True)
 
@@ -200,8 +201,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 							self.COM_B_max_button,
 							self.COM_B_min_button,
 							]:
-				if button.isDown():
-					button.setDown(False)
+				button.setDown(False)
 			self.COM_A_min_button.setDown(True)
 		else:
 			self.COM_A_min_button.setDown(True)
@@ -213,8 +213,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 							self.COM_B_max_button,
 							self.COM_B_min_button,
 							]:
-				if button.isDown():
-					button.setDown(False)
+				button.setDown(False)
 			self.COM_A_max_button.setDown(True)
 		else:
 			self.COM_A_max_button.setDown(True)
@@ -226,8 +225,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 							self.COM_B_max_button,
 							self.COM_A_min_button,
 							]:
-				if button.isDown():
-					button.setDown(False)
+				button.setDown(False)
 			self.COM_B_min_button.setDown(True)
 		else:
 			self.COM_B_min_button.setDown(True)
@@ -239,8 +237,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 							self.COM_A_min_button,
 							self.COM_B_min_button,
 							]:
-				if button.isDown():
-					button.setDown(False)
+				button.setDown(False)
 			self.COM_B_max_button.setDown(True)
 		else:
 			self.COM_B_max_button.setDown(True)
@@ -294,13 +291,15 @@ class MainWindow(QMainWindow):
 		self.m_ui = Ui_MainWindow()
 		self.m_ui.setupUi(self)
 
+		self.m_ui.centralwidget.resize(200, 200)
+
 		self.pause_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/pause.png'))
 		self.play_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/play.png'))
 		self.stop_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/stop.png'))
 		self.reset_icon = QIcon(os.path.join(os.path.dirname(sys.argv[0]), 'resources/reset.png'))
 		self.arrow_pixmap = QPixmap(os.path.join(os.path.dirname(sys.argv[0]), 'resources/arrow.png'))
-		self.larrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(90)))
-		self.rarrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(-90)))
+		self.rarrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(90)))
+		self.larrow_icon = QIcon(self.arrow_pixmap.transformed(QTransform().rotate(-90)))
 
 		self.setWindowTitle("MIPT VAC GUI")
 		
@@ -341,8 +340,8 @@ class MainWindow(QMainWindow):
 		#self.m_ui.stop_button.setIcon(self.stop_icon)
 
 		self.forward_direction_flag = True
-		self.m_ui.forward_dir_button.setIcon(self.larrow_icon)
-		self.m_ui.backward_dir_button.setIcon(self.rarrow_icon)
+		self.m_ui.forward_dir_button.setIcon(self.rarrow_icon)
+		self.m_ui.backward_dir_button.setIcon(self.larrow_icon)
 		self.m_ui.forward_dir_button.setDown(self.forward_direction_flag)
 		self.m_ui.backward_dir_button.clicked.connect(self.backward_dir_button_slot)
 		self.m_ui.forward_dir_button.clicked.connect(self.forward_dir_button_slot)
@@ -403,4 +402,40 @@ class MainWindow(QMainWindow):
 		else:
 			self.m_ui.forward_dir_button.setDown(True)
 
-	
+if __name__ == '__main__':
+	def slot_1(checked: bool):
+		print("1")
+		if checked:
+			btn_1.setEnabled(False)
+			btn_2.setEnabled(True)
+
+
+	def slot_2(checked: bool):
+		print("2")
+		if checked:
+			btn_2.setEnabled(False)
+			btn_1.setEnabled(True)
+
+
+	app = QApplication(sys.argv)
+	window = QWidget()
+
+	layout = QGridLayout()
+
+	btn_1 = QPushButton("1")
+	btn_2 = QPushButton("2")
+	btn_3 = QPushButton("3")
+	btn_1.setCheckable(True)
+	btn_2.setCheckable(True)
+	btn_1.setChecked(True)
+	btn_1.toggled.connect(slot_1)
+	btn_2.toggled.connect(slot_2)
+
+	layout.addWidget(btn_1, 0, 0)
+	layout.addWidget(btn_2, 0, 1)
+	layout.addWidget(btn_3, 1, 0, 1, -1)
+
+	window.setLayout(layout)
+
+	window.show()
+	app.exec()

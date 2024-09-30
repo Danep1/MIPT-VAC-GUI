@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>527</width>
-    <height>578</height>
+    <width>471</width>
+    <height>573</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,8 +21,8 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-     <horstretch>0</horstretch>
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>2</horstretch>
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
@@ -55,6 +55,9 @@
         <property name="spacing">
          <number>2</number>
         </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+        </property>
         <property name="leftMargin">
          <number>5</number>
         </property>
@@ -76,6 +79,9 @@
            </sizepolicy>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
+           <property name="sizeConstraint">
+            <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+           </property>
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -140,6 +146,9 @@
         <item>
          <widget class="QWidget" name="meas_setup_widget" native="true">
           <layout class="QGridLayout" name="gridLayout_5">
+           <property name="sizeConstraint">
+            <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+           </property>
            <property name="leftMargin">
             <number>0</number>
            </property>
@@ -152,10 +161,7 @@
            <property name="bottomMargin">
             <number>2</number>
            </property>
-           <property name="horizontalSpacing">
-            <number>7</number>
-           </property>
-           <property name="verticalSpacing">
+           <property name="spacing">
             <number>2</number>
            </property>
            <item row="2" column="1">
@@ -211,17 +217,32 @@
               <string>Общий диапазон</string>
              </property>
              <layout class="QGridLayout" name="gridLayout_6">
+              <property name="sizeConstraint">
+               <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+              </property>
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
               <property name="topMargin">
-               <number>4</number>
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
               </property>
               <property name="bottomMargin">
-               <number>4</number>
+               <number>3</number>
               </property>
               <property name="spacing">
                <number>2</number>
               </property>
               <item row="3" column="1">
                <widget class="QDoubleSpinBox" name="delay_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> с</string>
                 </property>
@@ -235,6 +256,17 @@
               </item>
               <item row="3" column="0">
                <widget class="QLabel" name="delay_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Задержка:</string>
                 </property>
@@ -242,6 +274,12 @@
               </item>
               <item row="2" column="1">
                <widget class="QDoubleSpinBox" name="step_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> В</string>
                 </property>
@@ -264,6 +302,17 @@
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="limit_right_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Предел справа:</string>
                 </property>
@@ -271,6 +320,17 @@
               </item>
               <item row="0" column="0">
                <widget class="QLabel" name="limit_left_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                 </font>
+                </property>
                 <property name="layoutDirection">
                  <enum>Qt::LayoutDirection::LeftToRight</enum>
                 </property>
@@ -281,11 +341,11 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="limit_left_spin">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
                 <property name="suffix">
                  <string> В</string>
@@ -303,6 +363,17 @@
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="step_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Шаг:</string>
                 </property>
@@ -310,6 +381,12 @@
               </item>
               <item row="1" column="1">
                <widget class="QDoubleSpinBox" name="limit_right_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> В</string>
                 </property>
@@ -342,11 +419,38 @@
               <bool>false</bool>
              </property>
              <layout class="QGridLayout" name="gridLayout">
+              <property name="sizeConstraint">
+               <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+              </property>
+              <property name="leftMargin">
+               <number>3</number>
+              </property>
+              <property name="topMargin">
+               <number>3</number>
+              </property>
+              <property name="rightMargin">
+               <number>3</number>
+              </property>
+              <property name="bottomMargin">
+               <number>3</number>
+              </property>
               <property name="spacing">
                <number>2</number>
               </property>
               <item row="0" column="1">
                <widget class="QLabel" name="limit_left_accurate_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                  <stylestrategy>PreferDefault</stylestrategy>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Предел слева:</string>
                 </property>
@@ -354,6 +458,18 @@
               </item>
               <item row="4" column="1">
                <widget class="QLabel" name="delay_accurate_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                  <stylestrategy>PreferDefault</stylestrategy>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Задержка:</string>
                 </property>
@@ -361,6 +477,21 @@
               </item>
               <item row="1" column="1">
                <widget class="QLabel" name="limit_right_accurate_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                  <stylestrategy>PreferDefault</stylestrategy>
+                 </font>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">padding-right: 1px</string>
+                </property>
                 <property name="text">
                  <string>Предел справа:</string>
                 </property>
@@ -368,11 +499,11 @@
               </item>
               <item row="0" column="3">
                <widget class="QDoubleSpinBox" name="limit_left_accurate_spin">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
                 <property name="suffix">
                  <string> В</string>
@@ -390,6 +521,12 @@
               </item>
               <item row="4" column="3">
                <widget class="QDoubleSpinBox" name="delay_accurate_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> с</string>
                 </property>
@@ -403,6 +540,12 @@
               </item>
               <item row="1" column="3">
                <widget class="QDoubleSpinBox" name="limit_right_accurate_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> В</string>
                 </property>
@@ -419,6 +562,12 @@
               </item>
               <item row="2" column="3">
                <widget class="QDoubleSpinBox" name="step_accurate_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> В</string>
                 </property>
@@ -441,6 +590,18 @@
               </item>
               <item row="2" column="1">
                <widget class="QLabel" name="step_accurate_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Ubuntu Condensed</family>
+                  <stylestrategy>PreferDefault</stylestrategy>
+                 </font>
+                </property>
                 <property name="text">
                  <string>Шаг:</string>
                 </property>
@@ -502,6 +663,12 @@
               </item>
               <item row="0" column="1">
                <widget class="QDoubleSpinBox" name="max_current_1_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> А</string>
                 </property>
@@ -515,6 +682,12 @@
               </item>
               <item row="0" column="3">
                <widget class="QDoubleSpinBox" name="max_current_2_spin">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="suffix">
                  <string> А</string>
                 </property>
@@ -543,6 +716,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_5">
            <property name="spacing">
             <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
            </property>
            <property name="leftMargin">
             <number>5</number>
@@ -573,6 +749,9 @@
           <layout class="QHBoxLayout" name="horizontalLayout_4">
            <property name="spacing">
             <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
            </property>
            <property name="leftMargin">
             <number>5</number>
@@ -654,6 +833,9 @@
            <string>Ручное управление:</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
+           <property name="sizeConstraint">
+            <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
+           </property>
            <property name="leftMargin">
             <number>5</number>
            </property>
@@ -677,6 +859,9 @@
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <property name="spacing">
                <number>2</number>
+              </property>
+              <property name="sizeConstraint">
+               <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
               </property>
               <property name="topMargin">
                <number>2</number>
@@ -709,6 +894,9 @@
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <property name="spacing">
                <number>2</number>
+              </property>
+              <property name="sizeConstraint">
+               <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
               </property>
               <property name="topMargin">
                <number>2</number>
@@ -758,7 +946,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>527</width>
+     <width>471</width>
      <height>20</height>
     </rect>
    </property>

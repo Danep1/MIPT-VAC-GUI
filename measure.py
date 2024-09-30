@@ -148,7 +148,8 @@ class MeasurementManager:
 				self.window.m_ui.start_button.setIcon(self.window.play_icon)
 			case Status.pause:
 				self.status = Status.measuring
-				pass # implement!
+				self.window.m_ui.start_button.setIcon(self.window.pause_icon)
+				pass
 			case Status.stop:
 				pass
 			case Status.done:
@@ -194,6 +195,7 @@ class MeasurementManager:
 			match self.status:
 				case Status.measuring:
 					await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
+					self.window.m_ui.statusbar.showMessage(f"V = {V} V")
 					t = time.time() - start_time
 					if channel == 1:
 						ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
@@ -213,9 +215,9 @@ class MeasurementManager:
 					if r == 0:
 						raise SystemError("Couldn't write into file")
 					line.setData(data_x, data_y)
-					self.window.m_ui.statusbar.showMessage(f"V = {V} V")
 				case Status.pause:
-					await asyncio.sleep(0.1)
+					while self.status == Status.pause:
+						await asyncio.sleep(0.01)
 				case Status.stop:
 					break
 				case _:
