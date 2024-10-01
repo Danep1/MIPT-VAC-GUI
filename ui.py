@@ -111,7 +111,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.name = name
 		self.main_channel = 1
 		self.COM = f"A{min_index}"
-		self.pixel = f"A{min_index + 1}"
+		self.pixel = f"A{min_index}"
 
 		self.setStyleSheet("QPushButton {min-width: 15}")
 		self.layout = QGridLayout(self)
@@ -131,6 +131,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.pixel_spin = QSpinBox()
 		self.pixel_spin.setRange(min_index, max_index)
 		self.pixel_spin.setValue(min_index)
+		self.pixel_spin.valueChanged.connect(self.pixel_spin_slot)
 	
 		self.COM_A_max_button = QPushButton(f"A{max_index}")
 		self.COM_A_min_button = QPushButton(f"A{min_index}")
@@ -177,6 +178,9 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.scheme_widget.setScaledContents(True)
 		self.scheme_widget.setPixmap(pixmapImage)  
 		self.scheme_window.show()
+
+	def pixel_spin_slot(self, value):
+		self.pixel = self.pixel[0] + str(value)
 
 	def pixel_A_button_slot(self):
 		if not self.pixel_A_button.isDown():
@@ -379,7 +383,7 @@ class MainWindow(QMainWindow):
 		self.plot_widget.setXRange(old_xrange[0], value)
 
 	def substrate_combo_slot(self, index: int):
-		self.m_ui.pixel_stacked.setCurrentIndex(index)
+		self.m_ui.segment_stacked.setCurrentIndex(index)
 		self.m_ui.substrate_scheme_button.clicked.disconnect()
 		self.m_ui.substrate_scheme_button.clicked.connect(self.substrate_list[index].show_scheme)
 

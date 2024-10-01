@@ -194,8 +194,8 @@ class MeasurementManager:
 			self.window.m_ui.statusbar.clearMessage()
 			match self.status:
 				case Status.measuring:
+					self.window.m_ui.statusbar.showMessage(f"V = {voltage} V")
 					await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
-					self.window.m_ui.statusbar.showMessage(f"V = {V} V")
 					t = time.time() - start_time
 					if channel == 1:
 						ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
@@ -222,4 +222,5 @@ class MeasurementManager:
 					break
 				case _:
 					pass
-
+		else:
+			self.instr.beep()
