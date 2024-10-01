@@ -38,6 +38,31 @@ class Point:
 	def __str__(self):
 		return '\t'.join(map(str, vars(self).values())) + '\n'
 
+class ConnectedButtonsSet:
+	def __init__(self, list_of_labels: list, flag):
+		self.list = []
+		for label in list_of_labels:
+			button = QPushButton(label)
+			button.setCheckable(True)
+			self.list.append(button)
+		self.list[0].setChecked(True)
+		for i, button in enumerate(self.list):
+			def slot(checked: bool):
+				print(self.list)
+				if checked:
+					flag = i
+					for other_button in self.list:
+						if other_button != button:
+							other_button.setChecked(False)
+				else:
+					button.setChecked(True)
+
+			button.clicked.connect(slot)
+
+	def get_list(self):
+		return self.list
+
+
 @unique
 class MeasureType(Enum):
 	none = 0
@@ -122,9 +147,12 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.COM_label = QLabel("COM:")
 		self.main_channel_label = QLabel("Канал прибора:")
 
+		self.pixel_button_toggled_flag = False
 		self.pixel_A_button = QPushButton("A")
 		self.pixel_B_button = QPushButton("B")
-		self.pixel_A_button.setDown(True)
+		self.pixel_A_button.setCheckable(True)
+		self.pixel_B_button.setCheckable(True)
+		self.pixel_A_button.setChecked(True)
 		self.pixel_A_button.clicked.connect(self.pixel_A_button_slot)
 		self.pixel_B_button.clicked.connect(self.pixel_B_button_slot)
 
@@ -178,15 +206,14 @@ class DefaultDiodeSegmentWidget(QWidget):
 		self.scheme_widget.setPixmap(pixmapImage)  
 		self.scheme_window.show()
 
-	def pixel_A_button_slot(self):
-		if not self.pixel_A_button.isDown():
+	def pixel_A_button_slot(self, checked: bool):
+		if checked:
+			self.pixel_button_toggled_flag = True
 			self.pixel = 'A' + self.pixel[1:]
-			self.pixel_B_button.setDown(False)
-			self.pixel_A_button.setDown(True)
-		else:
-			self.pixel_A_button.setDown(True)
+			self.pixel_B_button.setChecked(False)
 
-	def pixel_B_button_slot(self):
+
+	def pixel_B_button_slot(self, checked: bool):
 		if not self.pixel_B_button.isDown():
 			self.pixel = 'B' + self.pixel[1:]
 			self.pixel_A_button.setDown(False)
@@ -403,33 +430,14 @@ class MainWindow(QMainWindow):
 			self.m_ui.forward_dir_button.setDown(True)
 
 if __name__ == '__main__':
-	def slot_1(checked: bool):
-		print("1")
-		if checked:
-			btn_1.setEnabled(False)
-			btn_2.setEnabled(True)
-
-
-	def slot_2(checked: bool):
-		print("2")
-		if checked:
-			btn_2.setEnabled(False)
-			btn_1.setEnabled(True)
-
-
 	app = QApplication(sys.argv)
 	window = QWidget()
 
 	layout = QGridLayout()
 
-	btn_1 = QPushButton("1")
-	btn_2 = QPushButton("2")
+	index = 1
+	btn_1, btn_2 = ConnectedButtonsSet(["1", "2"], index).get_list()
 	btn_3 = QPushButton("3")
-	btn_1.setCheckable(True)
-	btn_2.setCheckable(True)
-	btn_1.setChecked(True)
-	btn_1.toggled.connect(slot_1)
-	btn_2.toggled.connect(slot_2)
 
 	layout.addWidget(btn_1, 0, 0)
 	layout.addWidget(btn_2, 0, 1)
