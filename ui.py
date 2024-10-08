@@ -38,30 +38,6 @@ class Point:
 	def __str__(self):
 		return '\t'.join(map(str, vars(self).values())) + '\n'
 
-class ConnectedButtonsSet:
-	def __init__(self, list_of_labels: list, flag):
-		self.list = []
-		for label in list_of_labels:
-			button = QPushButton(label)
-			button.setCheckable(True)
-			self.list.append(button)
-		self.list[0].setChecked(True)
-		for i, button in enumerate(self.list):
-			def slot(checked: bool):
-				print(self.list)
-				if checked:
-					flag = i
-					for other_button in self.list:
-						if other_button != button:
-							other_button.setChecked(False)
-				else:
-					button.setChecked(True)
-
-			button.clicked.connect(slot)
-
-	def get_list(self):
-		return self.list
-
 
 @unique
 class MeasureType(Enum):
@@ -172,6 +148,7 @@ class DefaultDiodeSegmentWidget(QWidget):
 			button.clicked.connect(slot)
 		self.COM_A_min_button.setDown(True)
 
+		self.main_channel_btns_pair
 		self.main_channel_1_button = QPushButton("1")
 		self.main_channel_2_button = QPushButton("2")
 		self.main_channel_1_button.setDown(True)
@@ -366,12 +343,11 @@ class MainWindow(QMainWindow):
 		self.m_ui.stop_button.setIcon(self.stop_icon)
 		#self.m_ui.stop_button.setIcon(self.stop_icon)
 
-		self.forward_direction_flag = True
+		self.forward_direction_flag = [True]
 		self.m_ui.forward_dir_button.setIcon(self.rarrow_icon)
 		self.m_ui.backward_dir_button.setIcon(self.larrow_icon)
-		self.m_ui.forward_dir_button.setDown(self.forward_direction_flag)
-		self.m_ui.backward_dir_button.clicked.connect(self.backward_dir_button_slot)
-		self.m_ui.forward_dir_button.clicked.connect(self.forward_dir_button_slot)
+		self.m_ui.backward_dir_button.clicked.connect(lambda checked: connected_btns_slot(self.backward_dir_button, [self.backward_dir_button, self.forward_dir_button], self.forward_direction_flag, checked))
+		self.m_ui.forward_dir_button.clicked.connect(lambda checked: connected_btns_slot(self.forward_dir_button, [self.backward_dir_button, self.forward_dir_button], self.forward_direction_flag, checked))
 
 		self.m_ui.limit_left_spin.setMinimumWidth(110)
 		self.m_ui.limit_left_accurate_spin.setMinimumWidth(110)
@@ -413,21 +389,26 @@ class MainWindow(QMainWindow):
 	def sample_edit_slot(self):
 		self.sample_name = self.m_ui.sample_edit.text()
 
-	def backward_dir_button_slot(self):
-		if not self.m_ui.backward_dir_button.isDown():
-			self.forward_direction_flag = True
-			self.m_ui.forward_dir_button.setDown(False)
-			self.m_ui.backward_dir_button.setDown(True)
-		else:
-			self.m_ui.backward_dir_button.setDown(True)
+def connected_btns_slot(btn, connected_btns, flag_cont, checked: bool):
+	if checked:
+		flag_cont[0] = btn.text()
+		for other_btn in connected_btns:
+			other_btn.setChecked(False) if other_btn != btn else None
+	else:
+		btn.setChecked(True)
 
-	def forward_dir_button_slot(self):
-		if not self.m_ui.forward_dir_button.isDown():
-			self.forward_direction_flag = False
-			self.m_ui.backward_dir_button.setDown(False)
-			self.m_ui.forward_dir_button.setDown(True)
-		else:
-			self.m_ui.forward_dir_button.setDown(True)
+
+class ConnectedBntsPair:
+	def __init__(self, label_1, label_2, flag_cont):
+		self.btn_1 = QPushButton(label_1)
+		self.btn_2 = QPushButton(label_2)
+		self.btn_1.setCheckable(True)
+		self.btn_2.setCheckable(True)
+		self.btn_1.setChecked(True)
+		l = [self.btn_1, self.btn_2]
+		self.btn_1.clicked.connect(lambda checked: connected_btns_slot(self.btn_1, l, flag_cont, checked))
+		self.btn_2.clicked.connect(lambda checked: connected_btns_slot(self.btn_2, l, flag_cont, checked))
+
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
@@ -435,12 +416,13 @@ if __name__ == '__main__':
 
 	layout = QGridLayout()
 
-	index = 1
-	btn_1, btn_2 = ConnectedButtonsSet(["1", "2"], index).get_list()
-	btn_3 = QPushButton("3")
+	index = ["1"]
+	Pair = ConnectedBntsPair("1", "2", index)
+	btn_3 = QPushButton("res")
+	btn_3.clicked.connect(lambda: print(f"res: {index[0]}"))
 
-	layout.addWidget(btn_1, 0, 0)
-	layout.addWidget(btn_2, 0, 1)
+	layout.addWidget(Pair.btn_1, 0, 0)
+	layout.addWidget(Pair.btn_2, 0, 1)
 	layout.addWidget(btn_3, 1, 0, 1, -1)
 
 	window.setLayout(layout)

@@ -8,7 +8,7 @@ import asyncio
 from enum import Enum, unique
 import os
 
-from ui import MainWindow, QApplication, MeasureType, Point, color_list, QColor, QColor_to_str, Qt
+from ui import MainWindow, QApplication, MeasureType, Point, color_list, QColor, QColor_to_str, Qt, connected_btns_slot
 from device import Ins2636B, InsDSO4254C
 
 @unique

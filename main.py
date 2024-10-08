@@ -12,8 +12,8 @@ from ui import MainWindow
 def args_parsing():
 	parser = argparse.ArgumentParser(description="MIPT-VAC-GUI - programm to measure volt-ampere")
 	parser.add_argument("-o",  "--output", default="vac", type=str, help="dir to save <time, sample, mode>/vac.dat")
-	parser.add_argument("--instr", default="/dev/usbtmc1", type=str, help="path to measuring instrument")
-	parser.add_argument("--oscil", default="/dev/usbtmc0", type=str, help="path to oscilloscope")
+	parser.add_argument("--instr", default="/dev/usbtmc0", type=str, help="path to measuring instrument")
+	parser.add_argument("--oscil", default="/dev/usbtmc1", type=str, help="path to oscilloscope")
 	args = parser.parse_args()
 	return args
 

@@ -120,13 +120,15 @@ class Ui_MainWindow(object):
         self.backward_dir_button = QPushButton(self.direction_box)
         self.backward_dir_button.setObjectName(u"backward_dir_button")
         self.backward_dir_button.setIconSize(QSize(30, 20))
+        self.backward_dir_button.setCheckable(True)
 
         self.horizontalLayout_6.addWidget(self.backward_dir_button)
 
         self.forward_dir_button = QPushButton(self.direction_box)
         self.forward_dir_button.setObjectName(u"forward_dir_button")
         self.forward_dir_button.setIconSize(QSize(30, 20))
-        self.forward_dir_button.setChecked(False)
+        self.forward_dir_button.setCheckable(True)
+        self.forward_dir_button.setChecked(True)
 
         self.horizontalLayout_6.addWidget(self.forward_dir_button)
 
@@ -142,7 +144,7 @@ class Ui_MainWindow(object):
         self.gridLayout_6.setContentsMargins(3, 3, 3, 3)
         self.delay_spin = QDoubleSpinBox(self.common_meas_box)
         self.delay_spin.setObjectName(u"delay_spin")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.delay_spin.sizePolicy().hasHeightForWidth())
@@ -341,8 +343,11 @@ class Ui_MainWindow(object):
 
         self.max_current_1_spin = QDoubleSpinBox(self.groupBox)
         self.max_current_1_spin.setObjectName(u"max_current_1_spin")
-        sizePolicy3.setHeightForWidth(self.max_current_1_spin.sizePolicy().hasHeightForWidth())
-        self.max_current_1_spin.setSizePolicy(sizePolicy3)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.max_current_1_spin.sizePolicy().hasHeightForWidth())
+        self.max_current_1_spin.setSizePolicy(sizePolicy5)
         self.max_current_1_spin.setMaximum(5.000000000000000)
         self.max_current_1_spin.setValue(0.010000000000000)
 
@@ -350,8 +355,8 @@ class Ui_MainWindow(object):
 
         self.max_current_2_spin = QDoubleSpinBox(self.groupBox)
         self.max_current_2_spin.setObjectName(u"max_current_2_spin")
-        sizePolicy3.setHeightForWidth(self.max_current_2_spin.sizePolicy().hasHeightForWidth())
-        self.max_current_2_spin.setSizePolicy(sizePolicy3)
+        sizePolicy5.setHeightForWidth(self.max_current_2_spin.sizePolicy().hasHeightForWidth())
+        self.max_current_2_spin.setSizePolicy(sizePolicy5)
         self.max_current_2_spin.setMaximum(5.000000000000000)
         self.max_current_2_spin.setValue(0.010000000000000)
 
