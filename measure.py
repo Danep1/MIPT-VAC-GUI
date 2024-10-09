@@ -117,16 +117,18 @@ class MeasurementManager:
 								legend_name = f"{i}: light"
 								style = Qt.DotLine
 							await asyncio.sleep(2)
+							wire_1_pix_name = self.window.m_ui.segment_stacked.currentWidget().wire_1_flag[0] + self.window.m_ui.segment_stacked.currentWidget().wire_1_combo.currentText()
+							wire_2_pix_name = self.window.m_ui.segment_stacked.currentWidget().wire_2_flag[0] + self.window.m_ui.segment_stacked.currentWidget().wire_2_combo.currentText()
 							vac_dir = os.path.join(self.output_dir, self.gen_diode_folder_name(self.window.m_ui.sample_edit.text(),
-																							self.window.m_ui.segment_stacked.currentWidget().pixel,
-																							self.window.m_ui.segment_stacked.currentWidget().COM,
+																							wire_1_pix_name,
+																							wire_2_pix_name,
 																							meas_button.state))
 							if not os.path.exists(self.output_dir):
 								os.mkdir(self.output_dir)
 							os.mkdir(os.path.join(vac_dir))
 							with open(os.path.join(vac_dir, "vac.dat"), mode="w+") as output_f:
 								await self.diode_cycle(	output_f, 
-														self.window.m_ui.segment_stacked.currentWidget().main_channel,
+														self.window.m_ui.segment_stacked.currentWidget().main_channel_flag[0],
 													 	self.window.m_ui.limit_right_spin.value(), 
 														self.window.m_ui.limit_left_spin.value(), 
 														self.window.m_ui.step_spin.value(), 
@@ -179,7 +181,7 @@ class MeasurementManager:
 								]:
 					widget.setEnabled(True)
 
-	async def diode_cycle(self, output_f, channel: int, right_limit, left_limit, step, delay, color="black", width=2, style=Qt.SolidLine, legend_name=""):
+	async def diode_cycle(self, output_f, channel: str, right_limit, left_limit, step, delay, color="black", width=2, style=Qt.SolidLine, legend_name=""):
 		data_x = []
 		data_y = []
 		start_time = time.time()
@@ -188,20 +190,20 @@ class MeasurementManager:
 									np.arange(right_limit, left_limit, -step),
 									np.arange(left_limit, step, step)), axis=0)
 		line.setPen(color=color, width=2, style=style)
-		if self.window.forward_direction_flag is False:
+		if self.window.forward_direction_flag[0] is False:
 			pass #np.flip(x_grid)
 		for idx, voltage in enumerate(x_grid):
 			self.window.m_ui.statusbar.clearMessage()
 			match self.status:
 				case Status.measuring:
 					await asyncio.gather( asyncio.to_thread(self.instr.set_A, float(voltage)))
-					self.window.m_ui.statusbar.showMessage(f"V = {V} V")
+					self.window.m_ui.statusbar.showMessage(f"V = {round(voltage, 5)} V")
 					t = time.time() - start_time
-					if channel == 1:
+					if channel == "1":
 						ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
 						I, V = map(float, ans[0])
 						p = Point(idx, t, V, I, 0, 0)
-					elif channel == 2:
+					elif channel == "2":
 						ans = await asyncio.gather( asyncio.to_thread(self.instr.measure_A))
 						I, V = map(float, ans[0])
 						p = Point(idx, t, V, I, 0, 0)

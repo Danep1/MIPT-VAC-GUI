@@ -106,161 +106,71 @@ class MeasureTypeButton(QPushButton):
 										""")
 
 class DefaultDiodeSegmentWidget(QWidget):
-	def __init__(self, name: str, min_index: int, max_index: int, scheme_path: str):
-		super(DefaultDiodeSegmentWidget, self).__init__()
-		self.scheme_path = scheme_path
+	def __init__(self, name: str, min_index: int, max_index: int, scheme_path: str, parent=None):
+		super(DefaultDiodeSegmentWidget, self).__init__(parent)
 		self.name = name
-		self.main_channel = 1
-		self.COM = f"A{min_index}"
-		self.pixel = f"A{min_index + 1}"
+
+		self.scheme_window = self.init_scheme_window(scheme_path)
+
+		self.main_channel_flag = ["1"]
+		self.wire_1_flag = ["A"]
+		self.wire_2_flag = ["A"]
 
 		self.setStyleSheet("QPushButton {min-width: 15}")
 		self.layout = QGridLayout(self)
 		self.layout.setContentsMargins(5, 2, 5, 2)
 		self.layout.setSpacing(2)
 
-		self.pixel_label = QLabel("Пиксель:")
-		self.COM_label = QLabel("COM:")
-		self.main_channel_label = QLabel("Канал прибора:")
+		self.wire_1_label = QLabel("Щуп 1:", self)
+		self.wire_2_label = QLabel("Щуп 2:", self)
+		self.main_channel_label = QLabel("Канал прибора:", self)
 
-		self.pixel_button_toggled_flag = False
-		self.pixel_A_button = QPushButton("A")
-		self.pixel_B_button = QPushButton("B")
-		self.pixel_A_button.setCheckable(True)
-		self.pixel_B_button.setCheckable(True)
-		self.pixel_A_button.setChecked(True)
-		self.pixel_A_button.clicked.connect(self.pixel_A_button_slot)
-		self.pixel_B_button.clicked.connect(self.pixel_B_button_slot)
+		self.wire_1_combo = QComboBox(self)
+		self.wire_2_combo = QComboBox(self)
+		for index in range(min_index, max_index + 1):
+			self.wire_1_combo.addItem(str(index))
+			self.wire_2_combo.addItem(str(index))
 
-		self.pixel_spin = QSpinBox()
-		self.pixel_spin.setRange(min_index, max_index)
-		self.pixel_spin.setValue(min_index)
-	
-		self.COM_A_max_button = QPushButton(f"A{max_index}")
-		self.COM_A_min_button = QPushButton(f"A{min_index}")
-		self.COM_B_max_button = QPushButton(f"B{max_index}")
-		self.COM_B_min_button = QPushButton(f"B{min_index}")
+		wire_1_AB_btns_pair = ConnectedBtnsPair("A", "B", self.wire_1_flag, self)
+		self.wire_1_A_button = wire_1_AB_btns_pair.btn_1
+		self.wire_1_B_button = wire_1_AB_btns_pair.btn_2
 
-		for button, slot in zip([self.COM_A_max_button, self.COM_A_min_button, self.COM_B_max_button, self.COM_B_min_button],
-								[self.COM_A_max_button_slot, self.COM_A_min_button_slot, self.COM_B_max_button_slot, self.COM_B_min_button_slot]
-			):
-			#button.setMinimumWidth(5)
-			button.clicked.connect(slot)
-		self.COM_A_min_button.setDown(True)
+		wire_2_AB_btns_pair = ConnectedBtnsPair("A", "B", self.wire_2_flag, self)
+		self.wire_2_A_button = wire_2_AB_btns_pair.btn_1
+		self.wire_2_B_button = wire_2_AB_btns_pair.btn_2
 
-		self.main_channel_btns_pair
-		self.main_channel_1_button = QPushButton("1")
-		self.main_channel_2_button = QPushButton("2")
-		self.main_channel_1_button.setDown(True)
-		self.main_channel_1_button.clicked.connect(self.main_channel_1_button_slot)
-		self.main_channel_2_button.clicked.connect(self.main_channel_2_button_slot)
+		main_channel_btns_pair = ConnectedBtnsPair("1", "2", self.main_channel_flag, self)
+		self.main_channel_1_button = main_channel_btns_pair.btn_1
+		self.main_channel_2_button = main_channel_btns_pair.btn_2
 
-		self.layout.addWidget(self.pixel_label, 0, 0)
-		self.layout.addWidget(self.COM_label, 1, 0)
+		self.layout.addWidget(self.wire_1_label, 0, 0)
+		self.layout.addWidget(self.wire_2_label, 1, 0)
 		self.layout.addWidget(self.main_channel_label, 2, 0)
-		self.layout.addWidget(self.pixel_A_button, 0, 1)
-		self.layout.addWidget(self.pixel_B_button, 0, 2)
-		self.layout.addWidget(self.pixel_spin, 0, 3)
-		self.layout.addWidget(self.COM_A_min_button, 1, 1)
-		self.layout.addWidget(self.COM_A_max_button, 1, 2)
-		self.layout.addWidget(self.COM_B_min_button, 1, 3)
-		self.layout.addWidget(self.COM_B_max_button, 1, 4)
+		self.layout.addWidget(self.wire_1_A_button, 0, 1)
+		self.layout.addWidget(self.wire_1_B_button, 0, 2)
+		self.layout.addWidget(self.wire_1_combo, 0, 3)
+		self.layout.addWidget(self.wire_2_A_button, 1, 1)
+		self.layout.addWidget(self.wire_2_B_button, 1, 2)
+		self.layout.addWidget(self.wire_2_combo, 1, 3)
 		self.layout.addWidget(self.main_channel_1_button, 2, 1)
 		self.layout.addWidget(self.main_channel_2_button, 2, 2)
         
-	def show_scheme(self):
-		self.scheme_window = QMainWindow()
-		self.scheme_widget = QLabel()
+	def init_scheme_window(self, scheme_path):
+		scheme_window = QMainWindow()
+		scheme_widget = QLabel()
 
-		self.scheme_window.setWindowTitle("Схема подложки")
-		self.scheme_window.setCentralWidget(self.scheme_widget)
+		scheme_window.setWindowTitle("Схема подложки")
+		scheme_window.setCentralWidget(scheme_widget)
 
-		#self.scheme_widget.resize(500, 500)
-		pixmapImage = QPixmap(self.scheme_path)
+		pixmapImage = QPixmap(scheme_path)
 		pixmapImage = pixmapImage.scaled(pixmapImage.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-		self.scheme_widget.setFixedSize(pixmapImage.size() / 2)
-		self.scheme_widget.setScaledContents(True)
-		self.scheme_widget.setPixmap(pixmapImage)  
+		scheme_widget.setFixedSize(pixmapImage.size() / 2)
+		scheme_widget.setScaledContents(True)
+		scheme_widget.setPixmap(pixmapImage)
+		return scheme_window
+
+	def show_scheme(self):
 		self.scheme_window.show()
-
-	def pixel_A_button_slot(self, checked: bool):
-		if checked:
-			self.pixel_button_toggled_flag = True
-			self.pixel = 'A' + self.pixel[1:]
-			self.pixel_B_button.setChecked(False)
-
-
-	def pixel_B_button_slot(self, checked: bool):
-		if not self.pixel_B_button.isDown():
-			self.pixel = 'B' + self.pixel[1:]
-			self.pixel_A_button.setDown(False)
-			self.pixel_B_button.setDown(True)
-		else:
-			self.pixel_B_button.setDown(True)
-
-	def COM_A_min_button_slot(self):
-		if not self.COM_A_min_button.isDown():
-			self.COM = self.COM_A_min_button.text()
-			for button in [	self.COM_A_max_button,
-							self.COM_B_max_button,
-							self.COM_B_min_button,
-							]:
-				button.setDown(False)
-			self.COM_A_min_button.setDown(True)
-		else:
-			self.COM_A_min_button.setDown(True)
-
-	def COM_A_max_button_slot(self):
-		if not self.COM_A_min_button.isDown():
-			self.COM = self.COM_A_max_button.text()
-			for button in [	self.COM_A_min_button,
-							self.COM_B_max_button,
-							self.COM_B_min_button,
-							]:
-				button.setDown(False)
-			self.COM_A_max_button.setDown(True)
-		else:
-			self.COM_A_max_button.setDown(True)
-
-	def COM_B_min_button_slot(self):
-		if not self.COM_B_min_button.isDown():
-			self.COM = self.COM_B_min_button.text()
-			for button in [	self.COM_A_max_button,
-							self.COM_B_max_button,
-							self.COM_A_min_button,
-							]:
-				button.setDown(False)
-			self.COM_B_min_button.setDown(True)
-		else:
-			self.COM_B_min_button.setDown(True)
-
-	def COM_B_max_button_slot(self):
-		if not self.COM_B_max_button.isDown():
-			self.COM = self.COM_B_max_button.text()
-			for button in [	self.COM_A_max_button,
-							self.COM_A_min_button,
-							self.COM_B_min_button,
-							]:
-				button.setDown(False)
-			self.COM_B_max_button.setDown(True)
-		else:
-			self.COM_B_max_button.setDown(True)
-
-	def main_channel_1_button_slot(self):
-		if not self.main_channel_1_button.isDown():
-			self.main_channel = 1
-			self.main_channel_2_button.setDown(False)
-			self.main_channel_1_button.setDown(True)
-		else:
-			self.main_channel_1_button.setDown(True)
-
-	def main_channel_2_button_slot(self):
-		if not self.main_channel_2_button.isDown():
-			self.main_channel = 2
-			self.main_channel_1_button.setDown(False)
-			self.main_channel_2_button.setDown(True)
-		else:
-			self.main_channel_2_button.setDown(True)
 
 
 class PlotWidget(pg.PlotWidget):
@@ -326,13 +236,14 @@ class MainWindow(QMainWindow):
 		self.m_ui.sample_edit.editingFinished.connect(self.sample_edit_slot)
 
 		self.substrate_list = []
-		self.substrate_list.append(DefaultDiodeSegmentWidget("D500", 1, 10, os.path.join(os.path.dirname(sys.argv[0]), "resources/D500.png")))
-		self.substrate_list.append(DefaultDiodeSegmentWidget("OP1", 1, 10, os.path.join(os.path.dirname(sys.argv[0]), "resources/OP1.png")))
-		self.substrate_list.append(DefaultDiodeSegmentWidget("OP2", 1, 15, os.path.join(os.path.dirname(sys.argv[0]), "resources/OP2.png"))) # must be modified!!!
+		self.substrate_list.append(DefaultDiodeSegmentWidget("D500", 1, 10, os.path.join(os.path.dirname(sys.argv[0]), "resources/D500.png"), self))
+		self.substrate_list.append(DefaultDiodeSegmentWidget("OP1", 1, 10, os.path.join(os.path.dirname(sys.argv[0]), "resources/OP1.png"), self))
+		self.substrate_list.append(DefaultDiodeSegmentWidget("OP2", 1, 15, os.path.join(os.path.dirname(sys.argv[0]), "resources/OP2.png"), self)) # must be modified!!!
 		#self.substrate_list.append(DefaultDiodeSegmentWidget("MD1", 1, 10, "./resources/MD1.png"))
-		self.substrate_list.append(DefaultDiodeSegmentWidget("MD2", 0, 14, os.path.join(os.path.dirname(sys.argv[0]), "resources/MD2.png")))
+		self.substrate_list.append(DefaultDiodeSegmentWidget("MD2", 0, 14, os.path.join(os.path.dirname(sys.argv[0]), "resources/MD2.png"), self))
 
 		for substrate_widget in self.substrate_list:
+			substrate_widget.setPalette(palette)
 			self.m_ui.segment_stacked.addWidget(substrate_widget)
 			self.m_ui.substrate_combo.addItem(substrate_widget.name)
 
@@ -346,8 +257,8 @@ class MainWindow(QMainWindow):
 		self.forward_direction_flag = [True]
 		self.m_ui.forward_dir_button.setIcon(self.rarrow_icon)
 		self.m_ui.backward_dir_button.setIcon(self.larrow_icon)
-		self.m_ui.backward_dir_button.clicked.connect(lambda checked: connected_btns_slot(self.backward_dir_button, [self.backward_dir_button, self.forward_dir_button], self.forward_direction_flag, checked))
-		self.m_ui.forward_dir_button.clicked.connect(lambda checked: connected_btns_slot(self.forward_dir_button, [self.backward_dir_button, self.forward_dir_button], self.forward_direction_flag, checked))
+		self.m_ui.backward_dir_button.clicked.connect(lambda checked: connected_btns_slot(self.m_ui.backward_dir_button, [self.m_ui.backward_dir_button, self.m_ui.forward_dir_button], self.forward_direction_flag, checked))
+		self.m_ui.forward_dir_button.clicked.connect(lambda checked: connected_btns_slot(self.m_ui.forward_dir_button, [self.m_ui.backward_dir_button, self.m_ui.forward_dir_button], self.forward_direction_flag, checked))
 
 		self.m_ui.limit_left_spin.setMinimumWidth(110)
 		self.m_ui.limit_left_accurate_spin.setMinimumWidth(110)
@@ -382,12 +293,13 @@ class MainWindow(QMainWindow):
 		self.plot_widget.setXRange(old_xrange[0], value)
 
 	def substrate_combo_slot(self, index: int):
-		self.m_ui.pixel_stacked.setCurrentIndex(index)
+		self.m_ui.segment_stacked.setCurrentIndex(index)
 		self.m_ui.substrate_scheme_button.clicked.disconnect()
 		self.m_ui.substrate_scheme_button.clicked.connect(self.substrate_list[index].show_scheme)
 
 	def sample_edit_slot(self):
 		self.sample_name = self.m_ui.sample_edit.text()
+
 
 def connected_btns_slot(btn, connected_btns, flag_cont, checked: bool):
 	if checked:
@@ -398,13 +310,14 @@ def connected_btns_slot(btn, connected_btns, flag_cont, checked: bool):
 		btn.setChecked(True)
 
 
-class ConnectedBntsPair:
-	def __init__(self, label_1, label_2, flag_cont):
-		self.btn_1 = QPushButton(label_1)
-		self.btn_2 = QPushButton(label_2)
+class ConnectedBtnsPair:
+	def __init__(self, label_1, label_2, flag_cont, parent=None):
+		self.btn_1 = QPushButton(label_1, parent)
+		self.btn_2 = QPushButton(label_2, parent)
 		self.btn_1.setCheckable(True)
 		self.btn_2.setCheckable(True)
 		self.btn_1.setChecked(True)
+		flag_cont[0] = label_1
 		l = [self.btn_1, self.btn_2]
 		self.btn_1.clicked.connect(lambda checked: connected_btns_slot(self.btn_1, l, flag_cont, checked))
 		self.btn_2.clicked.connect(lambda checked: connected_btns_slot(self.btn_2, l, flag_cont, checked))
@@ -417,7 +330,7 @@ if __name__ == '__main__':
 	layout = QGridLayout()
 
 	index = ["1"]
-	Pair = ConnectedBntsPair("1", "2", index)
+	Pair = ConnectedBtnsPair("1", "2", index)
 	btn_3 = QPushButton("res")
 	btn_3.clicked.connect(lambda: print(f"res: {index[0]}"))
 
